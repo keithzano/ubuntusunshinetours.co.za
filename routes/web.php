@@ -1,0 +1,144 @@
+<?php
+
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PayFastController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\TourController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\TourController as AdminTourController;
+use Illuminate\Support\Facades\Route;
+
+// Public Routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Tours
+Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
+Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
+Route::get('/tours/{tour}/availability', [TourController::class, 'getAvailability'])->name('tours.availability');
+
+// Cart
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+
+// Checkout
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/discount', [CheckoutController::class, 'applyDiscount'])->name('checkout.discount');
+Route::delete('/checkout/discount', [CheckoutController::class, 'removeDiscount'])->name('checkout.discount.remove');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+// PayFast
+Route::post('/payfast/notify', [PayFastController::class, 'notify'])->name('payfast.notify');
+
+// Booking Lookup (for guests)
+Route::get('/booking/lookup', [BookingController::class, 'lookup'])->name('booking.lookup');
+Route::post('/booking/find', [BookingController::class, 'find'])->name('booking.find');
+
+// Authenticated Client Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Client Dashboard redirect
+    Route::get('/dashboard', function () {
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('client.bookings.index');
+    })->name('dashboard');
+
+    // Client Bookings
+    Route::prefix('my')->name('client.')->group(function () {
+        Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+        Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+        Route::get('/bookings/{booking}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
+
+        // Reviews
+        Route::get('/bookings/{booking}/review', [ReviewController::class, 'create'])->name('reviews.create');
+        Route::post('/bookings/{booking}/review', [ReviewController::class, 'store'])->name('reviews.store');
+
+        // Wishlist
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist/{tour}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::get('/wishlist/{tour}/status', [WishlistController::class, 'status'])->name('wishlist.status');
+    });
+});
+
+// Admin Routes
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Tours
+    Route::get('/tours', [AdminTourController::class, 'index'])->name('tours.index');
+    Route::get('/tours/create', [AdminTourController::class, 'create'])->name('tours.create');
+    Route::post('/tours', [AdminTourController::class, 'store'])->name('tours.store');
+    Route::get('/tours/{tour}/edit', [AdminTourController::class, 'edit'])->name('tours.edit');
+    Route::put('/tours/{tour}', [AdminTourController::class, 'update'])->name('tours.update');
+    Route::delete('/tours/{tour}', [AdminTourController::class, 'destroy'])->name('tours.destroy');
+    Route::post('/tours/{tour}/toggle-status', [AdminTourController::class, 'toggleStatus'])->name('tours.toggle-status');
+    Route::post('/tours/{tour}/toggle-featured', [AdminTourController::class, 'toggleFeatured'])->name('tours.toggle-featured');
+    Route::get('/tours/{tour}/time-slots', [AdminTourController::class, 'timeSlots'])->name('tours.time-slots');
+    Route::post('/tours/{tour}/time-slots', [AdminTourController::class, 'storeTimeSlots'])->name('tours.time-slots.store');
+    Route::delete('/time-slots/{timeSlot}', [AdminTourController::class, 'deleteTimeSlot'])->name('time-slots.destroy');
+
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Locations
+    Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
+    Route::post('/locations', [LocationController::class, 'store'])->name('locations.store');
+    Route::put('/locations/{location}', [LocationController::class, 'update'])->name('locations.update');
+    Route::delete('/locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
+
+    // Bookings
+    Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/{booking}', [AdminBookingController::class, 'show'])->name('bookings.show');
+    Route::patch('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.status');
+    Route::patch('/bookings/{booking}/payment-status', [AdminBookingController::class, 'updatePaymentStatus'])->name('bookings.payment-status');
+
+    // Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+    // Reviews
+    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+    Route::post('/reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+    Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Discounts
+    Route::get('/discounts', [DiscountController::class, 'index'])->name('discounts.index');
+    Route::get('/discounts/create', [DiscountController::class, 'create'])->name('discounts.create');
+    Route::post('/discounts', [DiscountController::class, 'store'])->name('discounts.store');
+    Route::get('/discounts/{discount}', [DiscountController::class, 'show'])->name('discounts.show');
+    Route::get('/discounts/{discount}/edit', [DiscountController::class, 'edit'])->name('discounts.edit');
+    Route::put('/discounts/{discount}', [DiscountController::class, 'update'])->name('discounts.update');
+    Route::delete('/discounts/{discount}', [DiscountController::class, 'destroy'])->name('discounts.destroy');
+    Route::post('/discounts/{discount}/toggle', [DiscountController::class, 'toggleStatus'])->name('discounts.toggle');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/general', [SettingsController::class, 'updateGeneral'])->name('settings.general');
+    Route::post('/settings/payfast', [SettingsController::class, 'updatePayfast'])->name('settings.payfast');
+    Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
+    Route::post('/settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
+});
+
+require __DIR__.'/settings.php';
