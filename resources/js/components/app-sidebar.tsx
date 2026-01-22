@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Globe, LayoutGrid, Mail, Phone } from 'lucide-react';
 
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,28 +14,38 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
 
 import AppLogo from './app-logo';
+
+interface NavItem {
+    title: string;
+    href: string;
+    icon: any;
+}
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: dashboard().url,
         icon: LayoutGrid,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
+        title: 'Website',
+        href: 'https://ubuntusunshinetours.co.za',
+        icon: Globe,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Contact Us',
+        href: 'mailto:info@ubuntusunshinetours.co.za',
+        icon: Mail,
+    },
+    {
+        title: 'Call Us',
+        href: 'tel:+27123456789',
+        icon: Phone,
     },
 ];
 

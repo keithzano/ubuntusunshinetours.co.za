@@ -21,6 +21,11 @@ class CategoryController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('admin/categories/create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,8 +33,8 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:50',
             'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
-            'sort_order' => 'integer',
+            'is_active' => 'sometimes|boolean',
+            'sort_order' => 'sometimes|integer',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -40,7 +45,14 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return back()->with('success', 'Category created');
+        return redirect()->route('admin.categories.index')->with('success', 'Category created');
+    }
+
+    public function edit(Category $category): Response
+    {
+        return Inertia::render('admin/categories/edit', [
+            'category' => $category,
+        ]);
     }
 
     public function update(Request $request, Category $category)
@@ -50,8 +62,8 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:50',
             'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
-            'sort_order' => 'integer',
+            'is_active' => 'sometimes|boolean',
+            'sort_order' => 'sometimes|integer',
         ]);
 
         if ($validated['name'] !== $category->name) {
@@ -67,7 +79,15 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return back()->with('success', 'Category updated');
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated');
+    }
+
+    public function toggleStatus(Category $category)
+    {
+        $category->is_active = !$category->is_active;
+        $category->save();
+
+        return back()->with('success', 'Category status updated');
     }
 
     public function destroy(Category $category)

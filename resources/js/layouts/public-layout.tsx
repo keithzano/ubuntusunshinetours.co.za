@@ -38,6 +38,18 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             .then((res) => res.json())
             .then((data) => setCartCount(data.count || 0))
             .catch(() => setCartCount(0));
+
+        // Listen for cart updates
+        const handleCartUpdate = (event: CustomEvent) => {
+            setCartCount(event.detail.count);
+        };
+
+        window.addEventListener('cartUpdated', handleCartUpdate as EventListener);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate as EventListener);
+        };
     }, []);
 
     return (
@@ -59,7 +71,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 <div className="container mx-auto px-4">
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
-                        <Link href="/" className="flex items-center gap-2">
+                        <Link href="/" className="flex items-center">
                             <img
                                 src="/images/logo.png"
                                 alt="Ubuntu Sunshine Tours"
@@ -68,9 +80,6 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                                     e.currentTarget.style.display = 'none';
                                 }}
                             />
-                            <span className="text-xl font-bold text-primary">
-                                Ubuntu Sunshine Tours
-                            </span>
                         </Link>
 
                         {/* Desktop Navigation */}

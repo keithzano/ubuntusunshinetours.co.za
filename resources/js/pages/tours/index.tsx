@@ -59,7 +59,7 @@ function TourCard({ tour, view = 'grid' }: { tour: Tour; view?: 'grid' | 'list' 
                     <div className="flex flex-col md:flex-row">
                         <div className="relative aspect-video w-full md:aspect-[4/3] md:w-72">
                             <img
-                                src={tour.featured_image ? `/storage/${tour.featured_image}` : '/images/placeholder-tour.jpg'}
+                                src={tour.featured_image ? `/storage/${tour.featured_image}` : '/images/safari.jpg'}
                                 alt={tour.title}
                                 className="h-full w-full object-cover"
                             />
@@ -121,7 +121,7 @@ function TourCard({ tour, view = 'grid' }: { tour: Tour; view?: 'grid' | 'list' 
             <Card className="group h-full overflow-hidden transition-shadow hover:shadow-lg">
                 <div className="relative aspect-[4/3] overflow-hidden">
                     <img
-                        src={tour.featured_image ? `/storage/${tour.featured_image}` : '/images/placeholder-tour.jpg'}
+                        src={tour.featured_image ? `/storage/${tour.featured_image}` : '/images/safari.jpg'}
                         alt={tour.title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />

@@ -33,7 +33,7 @@ function CartItemCard({
                             src={
                                 item.tour?.featured_image
                                     ? `/storage/${item.tour.featured_image}`
-                                    : '/images/placeholder-tour.jpg'
+                                    : '/images/safari.jpg'
                             }
                             alt={item.tour?.title}
                             className="h-full w-full object-cover"
@@ -114,12 +114,27 @@ export default function CartIndex({ cart, items, total }: CartPageProps) {
         setIsRemoving(true);
         router.delete(`/cart/${itemId}`, {
             onFinish: () => setIsRemoving(false),
+            onSuccess: () => {
+                // Update cart count globally
+                fetch('/cart/count')
+                    .then((res) => res.json())
+                    .then((data) => {
+                        // Dispatch custom event to update cart count in layout
+                        window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: data.count } }));
+                    })
+                    .catch(() => {});
+            }
         });
     };
 
     const handleClearCart = () => {
         if (confirm('Are you sure you want to clear your cart?')) {
-            router.delete('/cart');
+            router.delete('/cart', {
+                onSuccess: () => {
+                    // Update cart count globally
+                    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: 0 } }));
+                }
+            });
         }
     };
 

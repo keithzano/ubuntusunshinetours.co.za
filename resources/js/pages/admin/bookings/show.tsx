@@ -1,0 +1,287 @@
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, User, Mail } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import AdminLayout from '@/layouts/admin-layout';
+import { Booking, PageProps } from '@/types';
+
+interface BookingShowProps extends PageProps {
+    booking: Booking;
+}
+
+export default function AdminBookingShow({ booking }: BookingShowProps) {
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'confirmed':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'cancelled':
+                return 'bg-red-100 text-red-800';
+            case 'completed':
+                return 'bg-blue-100 text-blue-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getPaymentStatusColor = (status: string) => {
+        switch (status) {
+            case 'paid':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'failed':
+                return 'bg-red-100 text-red-800';
+            case 'refunded':
+                return 'bg-gray-100 text-gray-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const handleStatusUpdate = (status: string) => {
+        router.patch(`/admin/bookings/${booking.id}/status`, { status });
+    };
+
+    const handlePaymentStatusUpdate = (paymentStatus: string) => {
+        router.patch(`/admin/bookings/${booking.id}/payment-status`, { payment_status: paymentStatus });
+    };
+
+    return (
+        <AdminLayout>
+            <Head title={`Booking ${booking.booking_reference} - Admin`} />
+
+            <div className="mb-6">
+                <Link href="/admin/bookings" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Bookings
+                </Link>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-3">
+                {/* Main Booking Details */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Booking Header */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Booking Details</CardTitle>
+                                <div className="flex gap-2">
+                                    <Badge className={getStatusColor(booking.status)}>
+                                        {booking.status}
+                                    </Badge>
+                                    <Badge className={getPaymentStatusColor(booking.payment_status)}>
+                                        {booking.payment_status}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <h3 className="font-semibold text-lg">Reference: {booking.booking_reference}</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Booked on {new Date(booking.created_at).toLocaleDateString()}
+                                </p>
+                            </div>
+
+                            <Separator />
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div>
+                                    <h4 className="font-medium mb-2">Customer Information</h4>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <User className="h-4 w-4" />
+                                            <span>{booking.customer_name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Mail className="h-4 w-4" />
+                                            <span>{booking.customer_email}</span>
+                                        </div>
+                                        {booking.customer_phone && (
+                                            <div className="flex items-center gap-2">
+                                                <Phone className="h-4 w-4" />
+                                                <span>{booking.customer_phone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-medium mb-2">Tour Information</h4>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <MapPin className="h-4 w-4" />
+                                            <span>{booking.tour?.title}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="h-4 w-4" />
+                                            <span>{new Date(booking.tour_date).toLocaleDateString()}</span>
+                                        </div>
+                                        {booking.tour_time && (
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-4 w-4" />
+                                                <span>{booking.tour_time}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <div>
+                                <h4 className="font-medium mb-2">Participants</h4>
+                                <div className="space-y-1">
+                                    {booking.participants?.map((participant, index) => (
+                                        <div key={index} className="flex justify-between text-sm">
+                                            <span>{participant.quantity} x {participant.tier}</span>
+                                            <span>R {(participant.price * participant.quantity).toLocaleString()}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <div className="flex justify-between items-center">
+                                <span className="font-semibold">Total Amount</span>
+                                <span className="font-bold text-lg">R {booking.total?.toLocaleString()}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Status Management */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Status Management</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium">Booking Status</label>
+                                <div className="flex gap-2 mt-2">
+                                    {['pending', 'confirmed', 'cancelled', 'completed'].map((status) => (
+                                        <Button
+                                            key={status}
+                                            size="sm"
+                                            variant={booking.status === status ? 'default' : 'outline'}
+                                            onClick={() => handleStatusUpdate(status)}
+                                        >
+                                            {status}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium">Payment Status</label>
+                                <div className="flex gap-2 mt-2">
+                                    {['pending', 'paid', 'failed', 'refunded'].map((status) => (
+                                        <Button
+                                            key={status}
+                                            size="sm"
+                                            variant={booking.payment_status === status ? 'default' : 'outline'}
+                                            onClick={() => handlePaymentStatusUpdate(status)}
+                                        >
+                                            {status}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                    {/* Timeline */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Timeline</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <div>
+                                        <p className="text-sm font-medium">Booking Created</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(booking.created_at).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                                {booking.confirmed_at && (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <div>
+                                            <p className="text-sm font-medium">Booking Confirmed</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {new Date(booking.confirmed_at).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                                {booking.cancelled_at && (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <div>
+                                            <p className="text-sm font-medium">Booking Cancelled</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {new Date(booking.cancelled_at).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Payments */}
+                    {booking.payments && booking.payments.length > 0 && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Payment History</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    {booking.payments.map((payment, index) => (
+                                        <div key={index} className="flex justify-between items-center text-sm">
+                                            <div>
+                                                <p className="font-medium">{payment.payment_method}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString() : 'Pending'}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-medium">R {payment.amount?.toLocaleString()}</p>
+                                                <Badge variant="outline" className="text-xs">
+                                                    {payment.status}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Notes */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Notes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">
+                                No additional notes available for this booking.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </AdminLayout>
+    );
+}

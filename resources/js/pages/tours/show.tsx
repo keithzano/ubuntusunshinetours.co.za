@@ -34,6 +34,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import GoogleReviews from '@/components/GoogleReviews';
 import PublicLayout from '@/layouts/public-layout';
 import { PageProps, Tour, TourPricingTier } from '@/types';
 
@@ -57,7 +58,7 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
         return (
             <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-200">
                 <img
-                    src="/images/placeholder-tour.jpg"
+                    src="/images/safari.jpg"
                     alt={title}
                     className="h-full w-full object-cover"
                 />
@@ -242,6 +243,21 @@ function BookingCard({
             tour_id: tour.id,
             tour_date: selectedDate,
             participants: participants.filter((p) => p.quantity > 0) as any,
+        }, {
+            onSuccess: () => {
+                // Update cart count globally
+                fetch('/cart/count')
+                    .then((res) => res.json())
+                    .then((data) => {
+                        // Dispatch custom event to update cart count in layout
+                        window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: data.count } }));
+                    })
+                    .catch(() => {});
+            },
+            onError: (errors) => {
+                console.error('Failed to add to cart:', errors);
+                alert('Failed to add to cart. Please try again.');
+            }
         });
     };
 
@@ -635,6 +651,62 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                     </div>
                 </div>
 
+                {/* Reviews Section */}
+                <section className="mt-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold">Guest Reviews</h2>
+                        <Button variant="outline" asChild>
+                            <Link href={`/tours/${tour.id}/reviews`}>
+                                View All Reviews
+                            </Link>
+                        </Button>
+                    </div>
+                    
+                    <div className="grid gap-6 lg:grid-cols-3">
+                        {/* Tour Reviews Summary */}
+                        <div className="lg:col-span-2">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>What Our Guests Say</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-center py-8">
+                                        <Star className="mx-auto h-12 w-12 text-yellow-400 mb-4" />
+                                        <h3 className="text-xl font-semibold mb-2">Excellent Experience</h3>
+                                        <p className="text-muted-foreground mb-4">
+                                            Join hundreds of satisfied travelers who have experienced the best of South Africa with us.
+                                        </p>
+                                        <div className="flex justify-center gap-4 mb-6">
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold">4.8</div>
+                                                <div className="text-sm text-muted-foreground">Average Rating</div>
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold">500+</div>
+                                                <div className="text-sm text-muted-foreground">Total Reviews</div>
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold">98%</div>
+                                                <div className="text-sm text-muted-foreground">Would Recommend</div>
+                                            </div>
+                                        </div>
+                                        <Button asChild>
+                                            <Link href={`/tours/${tour.id}/reviews`}>
+                                                Read All Reviews
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Google Reviews Widget */}
+                        <div>
+                            <GoogleReviews showLeaveReviewButton={true} maxReviews={2} />
+                        </div>
+                    </div>
+                </section>
+
                 {/* Related Tours */}
                 {relatedTours.length > 0 && (
                     <section className="mt-12">
@@ -648,7 +720,7 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                                                 src={
                                                     relatedTour.featured_image
                                                         ? `/storage/${relatedTour.featured_image}`
-                                                        : '/images/placeholder-tour.jpg'
+                                                        : '/images/safari.jpg'
                                                 }
                                                 alt={relatedTour.title}
                                                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

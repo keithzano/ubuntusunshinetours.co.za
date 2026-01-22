@@ -181,7 +181,7 @@ export default function CheckoutIndex({ cart, items, subtotal, user }: CheckoutP
                                                         src={
                                                             item.tour?.featured_image
                                                                 ? `/storage/${item.tour.featured_image}`
-                                                                : '/images/placeholder-tour.jpg'
+                                                                : '/images/safari.jpg'
                                                         }
                                                         alt={item.tour?.title}
                                                         className="h-full w-full object-cover"

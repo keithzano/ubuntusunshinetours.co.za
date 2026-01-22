@@ -26,6 +26,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
 Route::get('/tours/{tour}/availability', [TourController::class, 'getAvailability'])->name('tours.availability');
+Route::get('/tours/{tour}/reviews', [ReviewController::class, 'tourReviews'])->name('tours.reviews');
 
 // Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -97,8 +98,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Categories
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::post('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Locations
@@ -118,10 +122,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 
     // Reviews
-    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-    Route::post('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-    Route::post('/reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
-    Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/{review}', [ReviewController::class, 'show'])->name('reviews.show');
+    Route::post('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::post('/reviews/{review}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // Discounts
     Route::get('/discounts', [DiscountController::class, 'index'])->name('discounts.index');
@@ -139,6 +144,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/settings/payfast', [SettingsController::class, 'updatePayfast'])->name('settings.payfast');
     Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
     Route::post('/settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
+});
+
+// API Routes
+Route::prefix('api')->group(function () {
+    Route::get('/google-reviews', [App\Http\Controllers\Api\GoogleReviewsController::class, 'index']);
+    Route::get('/google-reviews/summary', [App\Http\Controllers\Api\GoogleReviewsController::class, 'summary']);
 });
 
 require __DIR__.'/settings.php';
