@@ -88,10 +88,10 @@ function TourCard({ tour, view = 'grid' }: { tour: Tour; view?: 'grid' | 'list' 
                                         <Clock className="h-4 w-4" />
                                         {tour.duration}
                                     </span>
-                                    {tour.reviews_count > 0 && (
+                                    {tour.reviews_count > 0 && tour.rating && (
                                         <span className="flex items-center gap-1">
                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                            {tour.rating.toFixed(1)} ({tour.reviews_count} reviews)
+                                            {Number(tour.rating).toFixed(1)} ({tour.reviews_count} reviews)
                                         </span>
                                     )}
                                     {tour.free_cancellation && (
@@ -149,10 +149,10 @@ function TourCard({ tour, view = 'grid' }: { tour: Tour; view?: 'grid' | 'list' 
                             <Clock className="h-4 w-4" />
                             {tour.duration}
                         </span>
-                        {tour.reviews_count > 0 && (
+                        {tour.reviews_count > 0 && tour.rating && (
                             <span className="flex items-center gap-1">
                                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                {tour.rating.toFixed(1)}
+                                {Number(tour.rating).toFixed(1)}
                             </span>
                         )}
                     </div>

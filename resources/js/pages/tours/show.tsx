@@ -458,10 +458,10 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                                             <Clock className="h-4 w-4" />
                                             {tour.duration}
                                         </span>
-                                        {tour.reviews_count > 0 && (
+                                        {tour.reviews_count > 0 && tour.rating && (
                                             <span className="flex items-center gap-1">
                                                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                {tour.rating.toFixed(1)} ({tour.reviews_count} reviews)
+                                                {Number(tour.rating).toFixed(1)} ({tour.reviews_count} reviews)
                                             </span>
                                         )}
                                     </div>
@@ -626,7 +626,7 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                                         <div className="flex items-center gap-2">
                                             <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                                             <span className="text-lg font-bold">
-                                                {tour.rating.toFixed(1)}
+                                                {tour.rating ? Number(tour.rating).toFixed(1) : '0.0'}
                                             </span>
                                             <span className="text-muted-foreground">
                                                 ({tour.reviews_count} reviews)
@@ -737,7 +737,7 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                                                 {relatedTour.rating > 0 && (
                                                     <span className="flex items-center gap-1 text-sm">
                                                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                        {relatedTour.rating.toFixed(1)}
+                                                        {Number(relatedTour.rating).toFixed(1)}
                                                     </span>
                                                 )}
                                             </div>
