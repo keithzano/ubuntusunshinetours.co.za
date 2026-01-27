@@ -50,6 +50,7 @@ Route::post('/payfast/notify', [PayFastController::class, 'notify'])->name('payf
 // Booking Lookup (for guests)
 Route::get('/booking/lookup', [BookingController::class, 'lookup'])->name('booking.lookup');
 Route::post('/booking/find', [BookingController::class, 'find'])->name('booking.find');
+Route::get('/booking/invoice/{booking}', [BookingController::class, 'publicInvoice'])->name('booking.invoice');
 
 // Authenticated Client Routes
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -93,6 +93,28 @@ class BookingController extends Controller
         return $pdf->download("invoice-{$booking->invoice_number}.pdf");
     }
 
+    public function publicInvoice(Booking $booking)
+    {
+        // Public access - no authorization required
+        // But verify booking exists and is paid
+        if (!$booking) {
+            abort(404, 'Booking not found');
+        }
+
+        if (!$booking->isPaid()) {
+            abort(403, 'Invoice is only available for paid bookings');
+        }
+
+        $booking->generateInvoiceNumber();
+        $booking->load(['tour', 'payments']);
+
+        $pdf = Pdf::loadView('pdf.invoice', [
+            'booking' => $booking,
+        ]);
+
+        return $pdf->download("invoice-{$booking->invoice_number}.pdf");
+    }
+
     public function lookup(Request $request): Response
     {
         return Inertia::render('booking-lookup');
