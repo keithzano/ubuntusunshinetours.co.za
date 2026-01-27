@@ -133,7 +133,7 @@ export default function AdminToursIndex({ tours, categories, filters }: ToursInd
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Tour</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Category</th>
@@ -143,9 +143,9 @@ export default function AdminToursIndex({ tours, categories, filters }: ToursInd
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {tours.data.map((tour) => (
-                                    <tr key={tour.id} className="hover:bg-gray-50">
+                                    <tr key={tour.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded">
@@ -236,7 +236,7 @@ export default function AdminToursIndex({ tours, categories, filters }: ToursInd
 
                     {/* Pagination */}
                     {tours.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t px-4 py-3">
+                        <div className="flex items-center justify-between border-t border-border px-4 py-3">
                             <p className="text-sm text-muted-foreground">
                                 Showing {tours.from} to {tours.to} of {tours.total} tours
                             </p>

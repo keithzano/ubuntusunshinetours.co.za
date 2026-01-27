@@ -66,7 +66,9 @@ export default function AdminReviewsIndex({ reviews, filters }: ReviewsIndexProp
                     <Star
                         key={star}
                         className={`h-4 w-4 ${
-                            star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                            star <= rating 
+                                ? 'fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500' 
+                                : 'text-gray-300 dark:text-gray-600'
                         }`}
                     />
                 ))}
@@ -75,9 +77,9 @@ export default function AdminReviewsIndex({ reviews, filters }: ReviewsIndexProp
     };
 
     const statusColors: Record<string, string> = {
-        pending: 'bg-yellow-100 text-yellow-800',
-        approved: 'bg-green-100 text-green-800',
-        rejected: 'bg-red-100 text-red-800',
+        pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
     };
 
     return (
@@ -150,7 +152,7 @@ export default function AdminReviewsIndex({ reviews, filters }: ReviewsIndexProp
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Review</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
@@ -161,9 +163,9 @@ export default function AdminReviewsIndex({ reviews, filters }: ReviewsIndexProp
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {reviews.data.map((review) => (
-                                    <tr key={review.id} className="hover:bg-gray-50">
+                                    <tr key={review.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div className="max-w-xs">
                                                 <p className="line-clamp-2">{review.comment}</p>
@@ -262,7 +264,7 @@ export default function AdminReviewsIndex({ reviews, filters }: ReviewsIndexProp
 
                     {/* Pagination */}
                     {reviews.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t px-4 py-3">
+                        <div className="flex items-center justify-between border-t border-border px-4 py-3">
                             <p className="text-sm text-muted-foreground">
                                 Showing {reviews.from} to {reviews.to} of {reviews.total} reviews
                             </p>

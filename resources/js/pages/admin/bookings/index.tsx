@@ -53,17 +53,17 @@ export default function AdminBookingsIndex({ bookings, filters }: BookingsIndexP
     };
 
     const statusColors: Record<string, string> = {
-        pending: 'bg-yellow-100 text-yellow-800',
-        confirmed: 'bg-green-100 text-green-800',
-        cancelled: 'bg-red-100 text-red-800',
-        completed: 'bg-blue-100 text-blue-800',
+        pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        confirmed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     };
 
     const paymentStatusColors: Record<string, string> = {
-        pending: 'bg-yellow-100 text-yellow-800',
-        paid: 'bg-green-100 text-green-800',
-        failed: 'bg-red-100 text-red-800',
-        refunded: 'bg-gray-100 text-gray-800',
+        pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        failed: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        refunded: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
     };
 
     return (
@@ -157,7 +157,7 @@ export default function AdminBookingsIndex({ bookings, filters }: BookingsIndexP
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Reference</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
@@ -169,9 +169,9 @@ export default function AdminBookingsIndex({ bookings, filters }: BookingsIndexP
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {bookings.data.map((booking) => (
-                                    <tr key={booking.id} className="hover:bg-gray-50">
+                                    <tr key={booking.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div>
                                                 <p className="font-medium">{booking.booking_reference}</p>
@@ -254,7 +254,7 @@ export default function AdminBookingsIndex({ bookings, filters }: BookingsIndexP
 
                     {/* Pagination */}
                     {bookings.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t px-4 py-3">
+                        <div className="flex items-center justify-between border-t border-border px-4 py-3">
                             <p className="text-sm text-muted-foreground">
                                 Showing {bookings.from} to {bookings.to} of {bookings.total} bookings
                             </p>

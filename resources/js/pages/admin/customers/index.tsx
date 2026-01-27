@@ -122,7 +122,7 @@ export default function AdminCustomersIndex({ customers, filters }: CustomersInd
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
@@ -133,12 +133,12 @@ export default function AdminCustomersIndex({ customers, filters }: CustomersInd
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {customers.data.map((customer) => (
-                                    <tr key={customer.id} className="hover:bg-gray-50">
+                                    <tr key={customer.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 dark:bg-primary/60 text-sm font-bold text-primary-foreground">
                                                     {customer.name?.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -205,7 +205,7 @@ export default function AdminCustomersIndex({ customers, filters }: CustomersInd
 
                     {/* Pagination */}
                     {customers.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t px-4 py-3">
+                        <div className="flex items-center justify-between border-t border-border px-4 py-3">
                             <p className="text-sm text-muted-foreground">
                                 Showing {customers.from} to {customers.to} of {customers.total} customers
                             </p>

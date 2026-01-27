@@ -54,8 +54,8 @@ function StatCard({
                         <p className="text-3xl font-bold">{value}</p>
                         {subValue && (
                             <p className="mt-1 flex items-center text-sm text-muted-foreground">
-                                {trend === 'up' && <ArrowUp className="mr-1 h-4 w-4 text-green-500" />}
-                                {trend === 'down' && <ArrowDown className="mr-1 h-4 w-4 text-red-500" />}
+                                {trend === 'up' && <ArrowUp className="mr-1 h-4 w-4 text-green-600 dark:text-green-400" />}
+                                {trend === 'down' && <ArrowDown className="mr-1 h-4 w-4 text-red-600 dark:text-red-400" />}
                                 {subValue}
                             </p>
                         )}
@@ -77,10 +77,10 @@ export default function AdminDashboard({
     bookingsByStatus,
 }: DashboardProps) {
     const statusColors: Record<string, string> = {
-        pending: 'bg-yellow-100 text-yellow-800',
-        confirmed: 'bg-green-100 text-green-800',
-        cancelled: 'bg-red-100 text-red-800',
-        completed: 'bg-blue-100 text-blue-800',
+        pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        confirmed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     };
 
     return (
@@ -139,7 +139,7 @@ export default function AdminDashboard({
                             {recentBookings.slice(0, 5).map((booking) => (
                                 <div
                                     key={booking.id}
-                                    className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                                    className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
                                 >
                                     <div>
                                         <p className="font-medium">{booking.customer_name}</p>
@@ -180,9 +180,9 @@ export default function AdminDashboard({
                             {topTours.map((tour, index) => (
                                 <div
                                     key={tour.id}
-                                    className="flex items-center gap-4 border-b pb-4 last:border-0 last:pb-0"
+                                    className="flex items-center gap-4 border-b border-border pb-4 last:border-0 last:pb-0"
                                 >
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/80 dark:bg-primary/60 text-sm font-bold text-primary-foreground">
                                         {index + 1}
                                     </span>
                                     <div className="flex-1">
@@ -191,7 +191,7 @@ export default function AdminDashboard({
                                             {tour.bookings_count} bookings
                                         </p>
                                     </div>
-                                    <TrendingUp className="h-5 w-5 text-green-500" />
+                                    <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                                 </div>
                             ))}
                             {topTours.length === 0 && (
@@ -214,12 +214,12 @@ export default function AdminDashboard({
                                         <div
                                             className={`h-3 w-3 rounded-full ${
                                                 status === 'confirmed'
-                                                    ? 'bg-green-500'
+                                                    ? 'bg-green-600 dark:bg-green-400'
                                                     : status === 'pending'
-                                                      ? 'bg-yellow-500'
+                                                      ? 'bg-yellow-600 dark:bg-yellow-400'
                                                       : status === 'cancelled'
-                                                        ? 'bg-red-500'
-                                                        : 'bg-blue-500'
+                                                        ? 'bg-red-600 dark:bg-red-400'
+                                                        : 'bg-blue-600 dark:bg-blue-400'
                                             }`}
                                         />
                                         <span className="capitalize">{status}</span>
@@ -246,7 +246,7 @@ export default function AdminDashboard({
                                     <span className="w-20 text-sm text-muted-foreground">{item.month}</span>
                                     <div className="flex-1">
                                         <div
-                                            className="h-6 rounded bg-primary"
+                                            className="h-6 rounded bg-primary/80 dark:bg-primary/60"
                                             style={{
                                                 width: `${Math.min(100, (item.revenue / (Math.max(...revenueChart.map((r) => r.revenue)) || 1)) * 100)}%`,
                                             }}

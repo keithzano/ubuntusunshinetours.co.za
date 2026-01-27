@@ -131,7 +131,7 @@ export default function AdminLocationsIndex({ locations, filters }: LocationsInd
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Location</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Region</th>
@@ -141,12 +141,12 @@ export default function AdminLocationsIndex({ locations, filters }: LocationsInd
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {locations.map((location) => (
-                                    <tr key={location.id} className="hover:bg-gray-50">
+                                    <tr key={location.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 dark:bg-primary/60 text-primary-foreground">
                                                     <MapPin className="h-5 w-5" />
                                                 </div>
                                                 <div>

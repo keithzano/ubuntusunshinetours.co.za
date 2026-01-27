@@ -110,7 +110,7 @@ export default function AdminCategoriesIndex({ categories, filters }: Categories
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b bg-muted">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Category</th>
                                     <th className="px-4 py-3 text-left text-sm font-medium">Description</th>
@@ -121,9 +121,9 @@ export default function AdminCategoriesIndex({ categories, filters }: Categories
                                     <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody className="divide-y divide-border">
                                 {categories.map((category) => (
-                                    <tr key={category.id} className="hover:bg-gray-50">
+                                    <tr key={category.id} className="hover:bg-muted/50">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 {category.image && (
