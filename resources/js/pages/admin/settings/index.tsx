@@ -1,5 +1,6 @@
-import { Head, useForm, Link } from '@inertiajs/react';
-import { Save, Upload, Image as ImageIcon } from 'lucide-react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { Save, Shield, Key, Lock, User, Palette, LogIn, UserPlus } from 'lucide-react';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -435,6 +436,21 @@ function SeoSettings({ settings }: { settings: Settings['seo'] }) {
     );
 }
 
+function ProfileSettings() {
+    useEffect(() => {
+        router.visit('/settings/profile');
+    }, []);
+
+    return (
+        <div className="flex items-center justify-center min-h-64">
+            <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Redirecting to profile settings...</p>
+            </div>
+        </div>
+    );
+}
+
 export default function AdminSettings({ settings }: SettingsPageProps) {
     return (
         <AdminLayout>
@@ -451,6 +467,7 @@ export default function AdminSettings({ settings }: SettingsPageProps) {
                     <TabsTrigger value="payfast">PayFast</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="seo">SEO</TabsTrigger>
+                    <TabsTrigger value="profile">Profile</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general">
@@ -467,6 +484,10 @@ export default function AdminSettings({ settings }: SettingsPageProps) {
 
                 <TabsContent value="seo">
                     <SeoSettings settings={settings.seo} />
+                </TabsContent>
+
+                <TabsContent value="profile">
+                    <ProfileSettings />
                 </TabsContent>
             </Tabs>
         </AdminLayout>
