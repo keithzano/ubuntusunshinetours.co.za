@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, User, Mail, Download, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, DollarSign, FileText, MapPin, Mail, Star, Users, Phone, User, Download, MessageSquare } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,16 +40,6 @@ export default function ClientBookingShow({ booking }: BookingShowProps) {
                 return 'bg-gray-100 text-gray-800';
             default:
                 return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const handleDownloadInvoice = () => {
-        window.open(`/my/bookings/${booking.id}/invoice`, '_blank');
-    };
-
-    const handleLeaveReview = () => {
-        if (booking.tour) {
-            window.location.href = `/tours/${booking.tour.slug}#review`;
         }
     };
 
@@ -191,23 +181,28 @@ export default function ClientBookingShow({ booking }: BookingShowProps) {
                             <CardTitle>Actions</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <Button 
-                                onClick={handleDownloadInvoice}
-                                className="w-full"
-                                variant="outline"
-                            >
-                                <Download className="mr-2 h-4 w-4" />
-                                Download Invoice
+                            <Button className="w-full" variant="outline" asChild>
+                                <Link href={`/my/bookings/${booking.id}/invoice`}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Download Invoice
+                                </Link>
                             </Button>
                             
                             {booking.status === 'completed' && booking.payment_status === 'paid' && !booking.review && (
-                                <Button 
-                                    onClick={handleLeaveReview}
-                                    className="w-full"
-                                >
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    Leave a Review
+                                <Button className="w-full" asChild>
+                                    <Link href={`/my/bookings/${booking.id}/review`}>
+                                        <Star className="mr-2 h-4 w-4" />
+                                        Leave a Review
+                                    </Link>
                                 </Button>
+                            )}
+                            
+                            {booking.review && (
+                                <div className="text-center p-3 bg-green-50 rounded-lg">
+                                    <p className="text-sm text-green-700">
+                                        ✓ You have reviewed this booking
+                                    </p>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
@@ -288,6 +283,39 @@ export default function ClientBookingShow({ booking }: BookingShowProps) {
                                     </p>
                                 </div>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Actions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <Button className="w-full" variant="outline" asChild>
+                                <Link href={`/my/bookings/${booking.id}/invoice`}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Download Invoice
+                                </Link>
+                            </Button>
+                            
+                            {/* Leave Review Button */}
+                            {booking.status === 'completed' && !booking.review && (
+                                <Button className="w-full" asChild>
+                                    <Link href={`/my/bookings/${booking.id}/review`}>
+                                        <Star className="mr-2 h-4 w-4" />
+                                        Leave a Review
+                                    </Link>
+                                </Button>
+                            )}
+                            
+                            {booking.review && (
+                                <div className="text-center p-3 bg-green-50 rounded-lg">
+                                    <p className="text-sm text-green-700">
+                                        ✓ You have reviewed this booking
+                                    </p>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 

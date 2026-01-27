@@ -7,6 +7,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BookingController extends Controller
 {
@@ -53,6 +54,17 @@ class BookingController extends Controller
         return Inertia::render('admin/bookings/show', [
             'booking' => $booking,
         ]);
+    }
+
+    public function invoice(Booking $booking)
+    {
+        $booking->load(['tour.category', 'tour.location', 'payments', 'review']);
+
+        $pdf = Pdf::loadView('pdf.invoice', compact('booking'))
+            ->setPaper('a4')
+            ->setOption('defaultFont', 'Arial');
+
+        return $pdf->download('invoice-' . $booking->invoice_number . '.pdf');
     }
 
     public function updateStatus(Request $request, Booking $booking)
