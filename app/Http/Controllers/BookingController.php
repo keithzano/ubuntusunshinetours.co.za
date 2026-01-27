@@ -122,18 +122,22 @@ class BookingController extends Controller
 
     public function find(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'booking_reference' => 'required|string',
             'email' => 'required|email',
         ]);
 
         $booking = Booking::with(['tour.category', 'tour.location'])
-            ->where('booking_reference', strtoupper($request->booking_reference))
-            ->where('customer_email', $request->email)
+            ->where('booking_reference', strtoupper($validated['booking_reference']))
+            ->where('customer_email', $validated['email'])
             ->first();
 
         if (!$booking) {
-            return back()->with('error', 'Booking not found. Please check your details and try again.');
+            // Return validation error for Inertia
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'booking_reference' => 'Booking not found. Please check your booking reference and email address.',
+                'email' => 'Booking not found. Please check your booking reference and email address.',
+            ]);
         }
 
         return Inertia::render('booking-details', [

@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, ArrowLeft, Calendar, MapPin, DollarSign, Users } from 'lucide-react';
+import { Search, ArrowLeft, Calendar, MapPin, DollarSign, Users, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -9,24 +9,26 @@ import { Label } from '@/components/ui/label';
 import PublicLayout from '@/layouts/public-layout';
 import { PageProps } from '@/types';
 
-interface BookingLookupProps extends PageProps {}
+interface BookingLookupProps extends PageProps {
+    errors?: {
+        booking_reference?: string;
+        email?: string;
+    };
+}
 
-export default function BookingLookup({}: BookingLookupProps) {
+export default function BookingLookup({ errors }: BookingLookupProps) {
     const [bookingReference, setBookingReference] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!bookingReference.trim() || !email.trim()) {
-            setError('Please enter both booking reference and email');
             return;
         }
 
         setLoading(true);
-        setError('');
 
         router.post('/booking/find', {
             booking_reference: bookingReference.trim(),
@@ -36,7 +38,7 @@ export default function BookingLookup({}: BookingLookupProps) {
                 // Will redirect to booking details if found
             },
             onError: (errors) => {
-                setError(errors.booking_reference || errors.email || 'Booking not found');
+                // Validation errors will be handled by the errors prop
                 setLoading(false);
             },
             onFinish: () => {
@@ -66,6 +68,28 @@ export default function BookingLookup({}: BookingLookupProps) {
                             </p>
                         </CardHeader>
                         <CardContent>
+                            {/* Display validation errors */}
+                            {(errors?.booking_reference || errors?.email) && (
+                                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div className="flex items-center gap-3">
+                                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                                        <div>
+                                            <p className="text-sm font-medium text-red-800">
+                                                Booking Not Found
+                                            </p>
+                                            <p className="text-sm text-red-600 mt-1">
+                                                We couldn't find a booking matching those details. Please check:
+                                            </p>
+                                            <ul className="text-xs text-red-600 mt-2 space-y-1">
+                                                <li>• Booking reference from your confirmation email</li>
+                                                <li>• Email address used when booking</li>
+                                                <li>• No extra spaces or typos</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSearch} className="space-y-6">
                                 <div className="space-y-4">
                                     <div>
@@ -98,12 +122,6 @@ export default function BookingLookup({}: BookingLookupProps) {
                                         </p>
                                     </div>
                                 </div>
-
-                                {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                                        <p className="text-sm text-red-600">{error}</p>
-                                    </div>
-                                )}
 
                                 <Button 
                                     type="submit" 
