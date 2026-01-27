@@ -41,12 +41,12 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        // Revenue chart (last 12 months) - SQLite compatible
+        // Revenue chart (last 12 months) - Database compatible
         $revenueChart = Booking::paid()
             ->where('created_at', '>=', now()->subMonths(12))
             ->select(
-                DB::raw("strftime('%Y', created_at) as year"),
-                DB::raw("strftime('%m', created_at) as month"),
+                DB::raw("YEAR(created_at) as year"),
+                DB::raw("MONTH(created_at) as month"),
                 DB::raw('SUM(total) as revenue'),
                 DB::raw('COUNT(*) as bookings')
             )
