@@ -19,6 +19,7 @@ import {
     Twitter,
     Users,
     X,
+    CheckCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -215,6 +216,7 @@ function BookingCard({
             price: tier.price,
         }))
     );
+    const [addedToCart, setAddedToCart] = useState(false);
 
     const updateParticipant = (tierId: number, delta: number) => {
         setParticipants((prev) =>
@@ -231,11 +233,12 @@ function BookingCard({
 
     const handleAddToCart = () => {
         if (!selectedDate) {
-            alert('Please select a date');
+            alert('Please select a tour date.');
             return;
         }
+
         if (totalParticipants === 0) {
-            alert('Please select at least one participant');
+            alert('Please select at least one participant.');
             return;
         }
 
@@ -253,6 +256,9 @@ function BookingCard({
                         window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: data.count } }));
                     })
                     .catch(() => {});
+
+                // Show success state
+                setAddedToCart(true);
             },
             onError: (errors) => {
                 console.error('Failed to add to cart:', errors);
@@ -347,10 +353,32 @@ function BookingCard({
                 </div>
 
                 {/* Add to Cart Button */}
-                <Button className="w-full" size="lg" onClick={handleAddToCart}>
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Add to Cart
-                </Button>
+                {addedToCart ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-center gap-2 rounded-lg bg-green-50 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                            <CheckCircle className="h-5 w-5" />
+                            <span className="font-medium">Added to cart successfully!</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <Link href="/cart" className="flex-1">
+                                <Button className="w-full" size="lg">
+                                    <ShoppingCart className="mr-2 h-5 w-5" />
+                                    Go to Cart
+                                </Button>
+                            </Link>
+                            <Link href="/tours" className="flex-1">
+                                <Button variant="outline" size="lg" className="w-full">
+                                    Browse More Tours
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <Button className="w-full" size="lg" onClick={handleAddToCart}>
+                        <ShoppingCart className="mr-2 h-5 w-5" />
+                        Add to Cart
+                    </Button>
+                )}
 
                 {/* Features */}
                 <div className="space-y-2 text-sm">
