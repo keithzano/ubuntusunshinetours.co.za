@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Save } from 'lucide-react';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { Save, Upload, Image as ImageIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +25,7 @@ function GeneralSettings({ settings }: { settings: Settings['general'] }) {
         whatsapp_number: settings.whatsapp_number || '',
         currency: settings.currency || 'ZAR',
         currency_symbol: settings.currency_symbol || 'R',
+        logo: null as File | null,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -57,6 +58,40 @@ function GeneralSettings({ settings }: { settings: Settings['general'] }) {
                                 value={data.contact_email}
                                 onChange={(e) => setData('contact_email', e.target.value)}
                             />
+                        </div>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="logo">Logo</Label>
+                        <div className="mt-2">
+                            {settings.logo && (
+                                <div className="mb-4">
+                                    <img
+                                        src={`/storage/${settings.logo}`}
+                                        alt="Current logo"
+                                        className="h-16 w-auto rounded border border-gray-200"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">Current logo</p>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-4">
+                                <Input
+                                    id="logo"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setData('logo', file);
+                                        }
+                                    }}
+                                    className="flex-1"
+                                />
+                                <div className="text-sm text-muted-foreground">
+                                    <p>Recommended: 200x50px</p>
+                                    <p>Max size: 2MB</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
