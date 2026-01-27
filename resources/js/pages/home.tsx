@@ -4,7 +4,6 @@ import {
     ChevronRight,
     Clock,
     MapPin,
-    Search,
     Shield,
     Star,
     Users,
@@ -15,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import PartnerSlider from '@/components/PartnerSlider';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 import PublicLayout from '@/layouts/public-layout';
 import { Category, Location, PageProps, Tour } from '@/types';
 
@@ -131,13 +131,6 @@ export default function Home({
     locations,
     recentTours,
 }: HomePageProps) {
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        window.location.href = `/tours?search=${encodeURIComponent(searchQuery)}`;
-    };
-
     return (
         <PublicLayout>
             <Head title="Home - Ubuntu Sunshine Tours" />
@@ -159,23 +152,26 @@ export default function Home({
                     </p>
 
                     {/* Search Bar */}
-                    <form onSubmit={handleSearch} className="mx-auto max-w-2xl">
+                    <div className="mx-auto max-w-2xl">
                         <div className="flex gap-2 rounded-lg bg-white p-2 shadow-lg">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search tours, destinations, activities..."
-                                    className="border-0 pl-10 text-gray-900 placeholder:text-gray-500 focus-visible:ring-0"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-                            <Button type="submit" size="lg" className="bg-[#00AEF1] hover:bg-[#0095D1]">
+                            <SearchAutocomplete 
+                                placeholder="Search tours, destinations, activities..."
+                                className="flex-1"
+                            />
+                            <Button 
+                                size="lg" 
+                                className="bg-[#00AEF1] hover:bg-[#0095D1]"
+                                onClick={() => {
+                                    const input = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+                                    if (input?.value.trim()) {
+                                        window.location.href = `/tours?search=${encodeURIComponent(input.value)}`;
+                                    }
+                                }}
+                            >
                                 Search
                             </Button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </section>
 

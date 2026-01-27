@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PayFastController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
@@ -46,6 +47,9 @@ Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('che
 
 // PayFast
 Route::post('/payfast/notify', [PayFastController::class, 'notify'])->name('payfast.notify');
+
+// Search Autocomplete
+Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->name('search.autocomplete');
 
 // Booking Lookup (for guests)
 Route::get('/booking/lookup', [BookingController::class, 'lookup'])->name('booking.lookup');
