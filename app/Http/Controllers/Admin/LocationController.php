@@ -21,6 +21,11 @@ class LocationController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('admin/locations/create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -30,12 +35,14 @@ class LocationController extends Controller
             'country' => 'required|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'image' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        
+        // Handle boolean checkboxes - convert "on" to boolean after validation
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('locations', 'public');
@@ -43,7 +50,14 @@ class LocationController extends Controller
 
         Location::create($validated);
 
-        return back()->with('success', 'Location created');
+        return redirect()->route('admin.locations.index')->with('success', 'Location created');
+    }
+
+    public function edit(Location $location): Response
+    {
+        return Inertia::render('admin/locations/edit', [
+            'location' => $location,
+        ]);
     }
 
     public function update(Request $request, Location $location)
@@ -55,14 +69,16 @@ class LocationController extends Controller
             'country' => 'required|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'image' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($validated['name'] !== $location->name) {
             $validated['slug'] = Str::slug($validated['name']);
         }
+        
+        // Handle boolean checkboxes - convert "on" to boolean after validation
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
 
         if ($request->hasFile('image')) {
             if ($location->image) {
@@ -73,7 +89,7 @@ class LocationController extends Controller
 
         $location->update($validated);
 
-        return back()->with('success', 'Location updated');
+        return redirect()->route('admin.locations.index')->with('success', 'Location updated');
     }
 
     public function destroy(Location $location)
