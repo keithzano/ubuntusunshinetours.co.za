@@ -13,10 +13,17 @@ export default function AdminCategoryCreate() {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         
+        console.log('Submitting category form...', formData);
+        
         router.post('/admin/categories', formData, {
             onSuccess: () => {
+                console.log('Category created successfully');
                 // Success message will be shown via flash message
             },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+            },
+            preserveState: true,
         });
     };
 
@@ -31,12 +38,13 @@ export default function AdminCategoryCreate() {
                 </Link>
             </div>
 
-            <div className="max-w-2xl">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Create New Category</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+            <div className="flex justify-center">
+                <div className="w-full max-w-2xl">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Create New Category</CardTitle>
+                        </CardHeader>
+                        <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
@@ -114,6 +122,7 @@ export default function AdminCategoryCreate() {
                         </form>
                     </CardContent>
                 </Card>
+                </div>
             </div>
         </AdminLayout>
     );

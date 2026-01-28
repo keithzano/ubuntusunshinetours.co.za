@@ -32,12 +32,14 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:50',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean',
+            'image' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif',
             'sort_order' => 'sometimes|integer',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        
+        // Handle boolean checkbox - convert "on" to boolean after validation
+        $validated['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('categories', 'public');
@@ -61,14 +63,16 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:50',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean',
+            'image' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif',
             'sort_order' => 'sometimes|integer',
         ]);
 
         if ($validated['name'] !== $category->name) {
             $validated['slug'] = Str::slug($validated['name']);
         }
+        
+        // Handle boolean checkbox - convert "on" to boolean after validation
+        $validated['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('image')) {
             if ($category->image) {
