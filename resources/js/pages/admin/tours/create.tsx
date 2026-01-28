@@ -79,6 +79,8 @@ export default function AdminToursCreate({ categories, locations }: CreateTourPr
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
+        console.log('Submitting tour form...', data);
+        
         const formData = new FormData();
         
         // Add all form fields
@@ -116,7 +118,15 @@ export default function AdminToursCreate({ categories, locations }: CreateTourPr
             }
         });
         
-        router.post('/admin/tours', formData);
+        router.post('/admin/tours', formData, {
+            onSuccess: () => {
+                console.log('Tour created successfully');
+            },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+            },
+            preserveState: true,
+        });
     };
 
     const addArrayItem = (field: 'highlights' | 'includes' | 'excludes' | 'what_to_bring') => {

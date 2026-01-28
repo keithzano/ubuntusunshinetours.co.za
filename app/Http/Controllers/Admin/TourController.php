@@ -11,6 +11,7 @@ use App\Models\TourTimeSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -59,58 +60,59 @@ class TourController extends Controller
     {
         $validated = $this->validateTour($request);
 
-        try {
-            DB::beginTransaction();
+        // Handle boolean checkboxes - convert to proper booleans after validation
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_bestseller'] = $request->boolean('is_bestseller');
+        $validated['instant_confirmation'] = $request->boolean('instant_confirmation');
+        $validated['free_cancellation'] = $request->boolean('free_cancellation');
 
-            // Handle featured image upload
-            if ($request->hasFile('featured_image')) {
-                $validated['featured_image'] = $request->file('featured_image')
-                    ->store('tours', 'public');
-            }
+        // Handle featured image upload
+        if ($request->hasFile('featured_image')) {
+            $validated['featured_image'] = $request->file('featured_image')
+                ->store('tours', 'public');
+        }
 
-            // Handle media files upload (gallery)
-            if ($request->hasFile('media_files')) {
-                $gallery = [];
-                $mediaFiles = $request->file('media_files');
-                if (is_array($mediaFiles)) {
-                    foreach ($mediaFiles as $file) {
-                        if ($file && $file->isValid()) {
-                            $path = $file->store('tours/gallery', 'public');
-                            $gallery[] = $path;
-                        }
+        // Handle media files upload (gallery)
+        if ($request->hasFile('media_files')) {
+            $gallery = [];
+            $mediaFiles = $request->file('media_files');
+            if (is_array($mediaFiles)) {
+                foreach ($mediaFiles as $file) {
+                    if ($file && $file->isValid()) {
+                        $path = $file->store('tours/gallery', 'public');
+                        $gallery[] = $path;
                     }
                 }
-                $validated['gallery'] = $gallery;
             }
-
-            $validated['slug'] = Str::slug($validated['title']);
-
-            $tour = Tour::create($validated);
-
-            // Create pricing tiers
-            if ($request->has('pricing_tiers')) {
-                foreach ($request->pricing_tiers as $index => $tier) {
-                    $tour->pricingTiers()->create([
-                        'name' => $tier['name'],
-                        'description' => $tier['description'] ?? null,
-                        'price' => $tier['price'],
-                        'min_age' => $tier['min_age'] ?? null,
-                        'max_age' => $tier['max_age'] ?? null,
-                        'is_active' => $tier['is_active'] ?? true,
-                        'sort_order' => $index,
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('admin.tours.index')
-                ->with('success', 'Tour created successfully');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to create tour: ' . $e->getMessage());
+            $validated['gallery'] = $gallery;
         }
+
+        $validated['slug'] = Str::slug($validated['title']);
+
+        Log::info('Creating tour with data:', $validated);
+        $tour = Tour::create($validated);
+        Log::info('Tour created with ID:', ['id' => $tour->id]);
+
+        // Create pricing tiers
+        if ($request->has('pricing_tiers')) {
+            foreach ($request->pricing_tiers as $index => $tier) {
+                $tour->pricingTiers()->create([
+                    'name' => $tier['name'],
+                    'description' => $tier['description'] ?? null,
+                    'price' => $tier['price'],
+                    'min_age' => ($tier['min_age'] === 'null' || $tier['min_age'] === null) ? null : $tier['min_age'],
+                    'max_age' => ($tier['max_age'] === 'null' || $tier['max_age'] === null) ? null : $tier['max_age'],
+                    'is_active' => filter_var($tier['is_active'], FILTER_VALIDATE_BOOLEAN),
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
+        Log::info('Tour creation completed successfully');
+
+        return redirect()->route('admin.tours.index')
+            ->with('success', 'Tour created successfully');
     }
 
     public function edit(Tour $tour): Response
@@ -129,6 +131,13 @@ class TourController extends Controller
     public function update(Request $request, Tour $tour)
     {
         $validated = $this->validateTour($request, $tour->id);
+
+        // Handle boolean checkboxes - convert to proper booleans after validation
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_bestseller'] = $request->boolean('is_bestseller');
+        $validated['instant_confirmation'] = $request->boolean('instant_confirmation');
+        $validated['free_cancellation'] = $request->boolean('free_cancellation');
 
         try {
             DB::beginTransaction();
@@ -294,7 +303,7 @@ class TourController extends Controller
     {
         return $request->validate([
             'title' => 'required|string|max:255',
-            'short_description' => 'required|string|max:500',
+            'short_description' => 'required|string|max:1000',
             'description' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'location_id' => 'required|exists:locations,id',
@@ -318,16 +327,11 @@ class TourController extends Controller
             'min_participants' => 'integer|min:1',
             'max_participants' => 'nullable|integer|min:1',
             'booking_cutoff_hours' => 'integer|min:0',
-            'featured_image' => 'nullable|image|max:5120',
-            'media_files.*' => 'nullable|image|max:5120',
+            'featured_image' => 'nullable|image|max:5120|mimes:jpeg,png,jpg,gif',
+            'media_files.*' => 'nullable|image|max:5120|mimes:jpeg,png,jpg,gif',
             'video_url' => 'nullable|url',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
-            'is_bestseller' => 'boolean',
-            'instant_confirmation' => 'boolean',
-            'free_cancellation' => 'boolean',
             'free_cancellation_hours' => 'nullable|integer|min:0',
         ]);
     }
