@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import GoogleReviewsEmbed from '@/components/GoogleReviewsEmbed';
 import PartnerSlider from '@/components/PartnerSlider';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 import PublicLayout from '@/layouts/public-layout';
@@ -300,6 +301,19 @@ export default function Home({
                     </div>
                 </section>
             )}
+
+            {/* Google Reviews Section */}
+            <section className="py-16">
+                <div className="container mx-auto px-4">
+                    <div className="mb-8 text-center">
+                        <h2 className="text-3xl font-bold">What Our Guests Say</h2>
+                        <p className="text-muted-foreground">Real reviews from happy travelers</p>
+                    </div>
+                    <div className="mx-auto max-w-4xl">
+                        <GoogleReviewsEmbed showLeaveReviewButton={true} />
+                    </div>
+                </div>
+            </section>
 
             {/* Partner Slider */}
             <PartnerSlider />

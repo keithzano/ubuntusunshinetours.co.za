@@ -53,7 +53,6 @@ interface ParticipantSelection {
 
 function ImageGallery({ images, title }: { images: string[]; title: string }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isOpen, setIsOpen] = useState(false);
 
     if (images.length === 0) {
         return (
@@ -68,75 +67,62 @@ function ImageGallery({ images, title }: { images: string[]; title: string }) {
     }
 
     return (
-        <>
-            <div className="grid gap-2">
-                <div
-                    className="aspect-video cursor-pointer overflow-hidden rounded-xl"
-                    onClick={() => setIsOpen(true)}
-                >
-                    <img
-                        src={`/storage/${images[currentIndex]}`}
-                        alt={title}
-                        className="h-full w-full object-cover transition-transform hover:scale-105"
-                    />
-                </div>
+        <div className="grid gap-2">
+            <div
+                className="relative aspect-video w-full overflow-hidden rounded-xl group"
+            >
+                <img
+                    src={`/storage/${images[currentIndex]}`}
+                    alt={title}
+                    className="h-full w-full object-cover transition-transform hover:scale-105"
+                />
+                
+                {/* Navigation arrows on main image */}
                 {images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                        {images.map((image, index) => (
-                            <button
-                                key={index}
-                                className={`shrink-0 overflow-hidden rounded-lg ${
-                                    index === currentIndex ? 'ring-2 ring-primary' : ''
-                                }`}
-                                onClick={() => setCurrentIndex(index)}
-                            >
-                                <img
-                                    src={`/storage/${image}`}
-                                    alt={`${title} ${index + 1}`}
-                                    className="h-20 w-20 object-cover"
-                                />
-                            </button>
-                        ))}
-                    </div>
+                    <>
+                        <button
+                            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
+                            onClick={() =>
+                                setCurrentIndex((prev) =>
+                                    prev === 0 ? images.length - 1 : prev - 1
+                                )
+                            }
+                        >
+                            <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
+                            onClick={() =>
+                                setCurrentIndex((prev) =>
+                                    prev === images.length - 1 ? 0 : prev + 1
+                                )
+                            }
+                        >
+                            <ChevronRight className="h-5 w-5" />
+                        </button>
+                    </>
                 )}
             </div>
-
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="max-w-4xl">
-                    <div className="relative">
-                        <img
-                            src={`/storage/${images[currentIndex]}`}
-                            alt={title}
-                            className="w-full rounded-lg"
-                        />
-                        {images.length > 1 && (
-                            <>
-                                <button
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-                                    onClick={() =>
-                                        setCurrentIndex((prev) =>
-                                            prev === 0 ? images.length - 1 : prev - 1
-                                        )
-                                    }
-                                >
-                                    <ChevronLeft className="h-6 w-6" />
-                                </button>
-                                <button
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-                                    onClick={() =>
-                                        setCurrentIndex((prev) =>
-                                            prev === images.length - 1 ? 0 : prev + 1
-                                        )
-                                    }
-                                >
-                                    <ChevronRight className="h-6 w-6" />
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </>
+            {images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                    {images.map((image, index) => (
+                        <button
+                            key={index}
+                            className={`shrink-0 overflow-hidden rounded-lg ${
+                                index === currentIndex ? 'ring-2 ring-primary' : ''
+                            }`}
+                            onClick={() => setCurrentIndex(index)}
+                        >
+                            <img
+                                src={`/storage/${image}`}
+                                alt={`${title} ${index + 1}`}
+                                className="h-20 w-20 object-cover"
+                            />
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -683,54 +669,69 @@ export default function TourShow({ tour, relatedTours }: TourShowProps) {
                 <section className="mt-12">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Guest Reviews</h2>
-                        <Button variant="outline" asChild>
-                            <Link href={`/tours/${tour.id}/reviews`}>
-                                View All Reviews
-                            </Link>
-                        </Button>
+                        {tour.reviews_count > 0 && (
+                            <Button variant="outline" asChild>
+                                <Link href={`/tours/${tour.slug}/reviews`}>
+                                    View All Reviews
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                     
                     <div className="grid gap-6 lg:grid-cols-3">
-                        {/* Tour Reviews Summary */}
+                        {/* Tour Reviews from Past Clients */}
                         <div className="lg:col-span-2">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>What Our Guests Say</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-center py-8">
-                                        <Star className="mx-auto h-12 w-12 text-yellow-400 mb-4" />
-                                        <h3 className="text-xl font-semibold mb-2">Excellent Experience</h3>
-                                        <p className="text-muted-foreground mb-4">
-                                            Join hundreds of satisfied travelers who have experienced the best of South Africa with us.
-                                        </p>
-                                        <div className="flex justify-center gap-4 mb-6">
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold">4.8</div>
-                                                <div className="text-sm text-muted-foreground">Average Rating</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold">500+</div>
-                                                <div className="text-sm text-muted-foreground">Total Reviews</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold">98%</div>
-                                                <div className="text-sm text-muted-foreground">Would Recommend</div>
-                                            </div>
+                                    {tour.approved_reviews && tour.approved_reviews.length > 0 ? (
+                                        <div className="space-y-6">
+                                            {/* Rating Summary */}
+                                            {tour.rating && tour.reviews_count > 0 && (
+                                                <div className="flex items-center gap-4 pb-4 border-b">
+                                                    <div className="flex items-center gap-2">
+                                                        <Star className="h-8 w-8 fill-yellow-400 text-yellow-400" />
+                                                        <span className="text-3xl font-bold">
+                                                            {Number(tour.rating).toFixed(1)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-muted-foreground">
+                                                        Based on {tour.reviews_count} verified {tour.reviews_count === 1 ? 'review' : 'reviews'}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {/* Recent Reviews */}
+                                            {tour.approved_reviews.slice(0, 3).map((review) => (
+                                                <ReviewCard key={review.id} review={review} />
+                                            ))}
+                                            {tour.reviews_count > 3 && (
+                                                <div className="text-center pt-4">
+                                                    <Button variant="outline" asChild>
+                                                        <Link href={`/tours/${tour.slug}/reviews`}>
+                                                            View All {tour.reviews_count} Reviews
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <Button asChild>
-                                            <Link href={`/tours/${tour.id}/reviews`}>
-                                                Read All Reviews
-                                            </Link>
-                                        </Button>
-                                    </div>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <Star className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                                            <h3 className="text-xl font-semibold mb-2">No Reviews Yet</h3>
+                                            <p className="text-muted-foreground mb-4">
+                                                Be the first to share your experience! Book this tour and leave a review after your adventure.
+                                            </p>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>
 
                         {/* Google Reviews Widget */}
                         <div>
-                            <GoogleReviews showLeaveReviewButton={true} maxReviews={2} />
+                            <GoogleReviews showLeaveReviewButton={true} maxReviews={3} />
                         </div>
                     </div>
                 </section>
