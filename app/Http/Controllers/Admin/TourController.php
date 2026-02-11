@@ -186,9 +186,9 @@ class TourController extends Controller
                         'name' => $tier['name'],
                         'description' => $tier['description'] ?? null,
                         'price' => $tier['price'],
-                        'min_age' => $tier['min_age'] ?? null,
-                        'max_age' => $tier['max_age'] ?? null,
-                        'is_active' => $tier['is_active'] ?? true,
+                        'min_age' => (($tier['min_age'] ?? null) === 'null' || ($tier['min_age'] ?? null) === 'undefined') ? null : ($tier['min_age'] ?? null),
+                        'max_age' => (($tier['max_age'] ?? null) === 'null' || ($tier['max_age'] ?? null) === 'undefined') ? null : ($tier['max_age'] ?? null),
+                        'is_active' => isset($tier['is_active']) ? filter_var($tier['is_active'], FILTER_VALIDATE_BOOLEAN) : true,
                         'sort_order' => $index,
                     ]);
                 }
@@ -201,6 +201,11 @@ class TourController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Failed to update tour', [
+                'tour_id' => $tour->id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return back()->with('error', 'Failed to update tour: ' . $e->getMessage());
         }
     }

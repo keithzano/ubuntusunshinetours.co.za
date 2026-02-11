@@ -33,6 +33,7 @@ class GoogleReviewsController extends Controller
             'total_reviews' => $reviewsData['total_reviews'],
             'reviews' => $this->googleReviewsService->formatReviewsForFrontend($reviews),
             'review_url' => $this->googleReviewsService->getReviewUrl(),
+            'maps_url' => $this->googleReviewsService->getMapsUrl(),
         ]);
     }
 

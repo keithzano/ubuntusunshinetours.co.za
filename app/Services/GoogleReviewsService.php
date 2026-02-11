@@ -10,11 +10,15 @@ class GoogleReviewsService
 {
     private string $apiKey;
     private string $placeId;
+    private string $reviewUrl;
+    private string $mapsUrl;
 
     public function __construct()
     {
         $this->apiKey = config('services.google.api_key');
         $this->placeId = config('services.google.place_id', '');
+        $this->reviewUrl = config('services.google.review_url', '');
+        $this->mapsUrl = config('services.google.maps_url', '');
     }
 
     /**
@@ -22,13 +26,15 @@ class GoogleReviewsService
      */
     public function getReviews(): array
     {
-        return Cache::remember('google_reviews', 3600, function () {
+        return Cache::remember('google_reviews:' . $this->placeId, 3600, function () {
             try {
-                // First get place details
-                $placeDetails = $this->getPlaceDetails();
-                
+                if (empty($this->apiKey) || empty($this->placeId)) {
+                    return $this->getEmptyReviews();
+                }
+
+                $placeDetails = $this->getPlaceDetails($this->placeId);
                 if (!$placeDetails) {
-                    return $this->getFallbackReviews();
+                    return $this->getEmptyReviews();
                 }
 
                 return [
@@ -38,7 +44,7 @@ class GoogleReviewsService
                 ];
             } catch (\Exception $e) {
                 Log::error('Failed to fetch Google Reviews: ' . $e->getMessage());
-                return $this->getFallbackReviews();
+                return $this->getEmptyReviews();
             }
         });
     }
@@ -46,10 +52,10 @@ class GoogleReviewsService
     /**
      * Get place details from Google Places API
      */
-    private function getPlaceDetails(): ?array
+    private function getPlaceDetails(string $placeId): ?array
     {
         $response = Http::get('https://maps.googleapis.com/maps/api/place/details/json', [
-            'place_id' => $this->placeId,
+            'place_id' => $placeId,
             'fields' => 'rating,user_ratings_total,reviews,name',
             'key' => $this->apiKey,
             'language' => 'en',
@@ -66,17 +72,13 @@ class GoogleReviewsService
         
         // Check if we got the right business (Ubuntu Sunshine Tours)
         if ($result && !str_contains(strtolower($result['name'] ?? ''), 'ubuntu sunshine')) {
-            Log::warning('Google Places API returned wrong business: ' . ($result['name'] ?? 'Unknown') . ' instead of Ubuntu Sunshine Tours');
-            return null;
+            Log::warning('Google Places API returned unexpected business name: ' . ($result['name'] ?? 'Unknown') . ' (configured place_id=' . $this->placeId . ')');
         }
 
         return $result;
     }
 
-    /**
-     * Fallback reviews when API is not available
-     */
-    private function getFallbackReviews(): array
+    private function getEmptyReviews(): array
     {
         return [
             'rating' => 0,
@@ -90,10 +92,24 @@ class GoogleReviewsService
      */
     public function getReviewUrl(): string
     {
+        if (!empty($this->reviewUrl)) {
+            return $this->reviewUrl;
+        }
         if (empty($this->placeId)) {
             return '';
         }
         return 'https://search.google.com/local/writereview?placeid=' . $this->placeId;
+    }
+
+    public function getMapsUrl(): string
+    {
+        if (!empty($this->mapsUrl)) {
+            return $this->mapsUrl;
+        }
+        if (empty($this->placeId)) {
+            return '';
+        }
+        return 'https://www.google.com/maps/place/?q=place_id:' . $this->placeId;
     }
 
     /**

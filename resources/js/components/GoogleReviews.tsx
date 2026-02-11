@@ -17,6 +17,7 @@ interface GoogleReviewsResponse {
     total_reviews: number;
     reviews: GoogleReview[];
     review_url: string;
+    maps_url?: string;
 }
 
 interface GoogleReviewsProps {
@@ -31,6 +32,16 @@ export default function GoogleReviews({
     const [reviewsData, setReviewsData] = useState<GoogleReviewsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const getReviewUrl = () => {
+        const url = reviewsData?.review_url || '';
+        return typeof url === 'string' && url.trim().length > 0 ? url : '';
+    };
+
+    const getMapsUrl = () => {
+        const url = reviewsData?.maps_url || '';
+        return typeof url === 'string' && url.trim().length > 0 ? url : '';
+    };
 
     useEffect(() => {
         const fetchReviews = async () => {
@@ -68,15 +79,15 @@ export default function GoogleReviews({
     };
 
     const handleLeaveReview = () => {
-        if (reviewsData?.review_url) {
-            window.open(reviewsData.review_url, '_blank');
-        }
+        const url = getReviewUrl();
+        if (!url) return;
+        window.open(url, '_blank');
     };
 
     const handleViewAllReviews = () => {
-        if (reviewsData?.review_url) {
-            window.open(reviewsData.review_url, '_blank');
-        }
+        const url = getMapsUrl();
+        if (!url) return;
+        window.open(url, '_blank');
     };
 
     if (loading) {
@@ -125,7 +136,7 @@ export default function GoogleReviews({
                             {error || 'Reviews temporarily unavailable'}
                         </p>
                         {showLeaveReviewButton && (
-                            <Button onClick={handleLeaveReview}>
+                            <Button onClick={handleLeaveReview} disabled={!getReviewUrl()}>
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Leave a Google Review
                             </Button>
@@ -197,7 +208,7 @@ export default function GoogleReviews({
                         ))}
 
                         {reviewsData.total_reviews > maxReviews && (
-                            <Button variant="outline" onClick={handleViewAllReviews} className="w-full">
+                            <Button variant="outline" onClick={handleViewAllReviews} className="w-full" disabled={!getMapsUrl()}>
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 View all {reviewsData.total_reviews} reviews on Google
                             </Button>

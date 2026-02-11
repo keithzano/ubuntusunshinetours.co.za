@@ -217,6 +217,9 @@ function BookingCard({
     const totalParticipants = participants.reduce((sum, p) => sum + p.quantity, 0);
     const totalPrice = participants.reduce((sum, p) => sum + p.quantity * p.price, 0);
 
+    const minParticipants = tour.min_participants && tour.min_participants > 1 ? tour.min_participants : 1;
+    const needsMoreParticipants = minParticipants > 1 && totalParticipants < minParticipants;
+
     const handleAddToCart = () => {
         if (!selectedDate) {
             alert('Please select a tour date.');
@@ -225,6 +228,11 @@ function BookingCard({
 
         if (totalParticipants === 0) {
             alert('Please select at least one participant.');
+            return;
+        }
+
+        if (needsMoreParticipants) {
+            alert(`This tour requires a minimum of ${minParticipants} participants. You have selected ${totalParticipants}.`);
             return;
         }
 
@@ -288,6 +296,12 @@ function BookingCard({
                 {/* Participant Selection */}
                 <div>
                     <Label>Participants</Label>
+                    {minParticipants > 1 && (
+                        <p className="text-sm text-amber-600 mt-1 flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            Minimum {minParticipants} participants required
+                        </p>
+                    )}
                     <div className="mt-2 space-y-3">
                         {pricingTiers.map((tier) => {
                             const participant = participants.find((p) => p.tier_id === tier.id);
@@ -332,6 +346,16 @@ function BookingCard({
 
                 <Separator />
 
+                {/* Minimum participants warning */}
+                {needsMoreParticipants && (
+                    <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                        <p className="flex items-center gap-2">
+                            <Info className="h-4 w-4" />
+                            Please select at least {minParticipants - totalParticipants} more participant{minParticipants - totalParticipants > 1 ? 's' : ''} (minimum {minParticipants} required)
+                        </p>
+                    </div>
+                )}
+
                 {/* Total */}
                 <div className="flex items-center justify-between text-lg font-bold">
                     <span>Total</span>
@@ -360,9 +384,17 @@ function BookingCard({
                         </div>
                     </div>
                 ) : (
-                    <Button className="w-full" size="lg" onClick={handleAddToCart}>
+                    <Button 
+                        className="w-full" 
+                        size="lg" 
+                        onClick={handleAddToCart}
+                        disabled={needsMoreParticipants || totalParticipants === 0}
+                    >
                         <ShoppingCart className="mr-2 h-5 w-5" />
-                        Add to Cart
+                        {needsMoreParticipants 
+                            ? `Select ${minParticipants - totalParticipants} more participant${minParticipants - totalParticipants > 1 ? 's' : ''}`
+                            : 'Add to Cart'
+                        }
                     </Button>
                 )}
 

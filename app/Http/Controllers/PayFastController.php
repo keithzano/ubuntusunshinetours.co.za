@@ -28,7 +28,10 @@ class PayFastController extends Controller
         }
 
         // Get booking IDs from custom_str1
-        $bookingIds = json_decode($request->custom_str1, true);
+        $bookingIds = [];
+        if (!empty($request->custom_str1)) {
+            $bookingIds = array_values(array_filter(array_map('intval', explode(',', (string) $request->custom_str1))));
+        }
 
         if (!$bookingIds) {
             Log::error('No booking IDs found in PayFast notification');
@@ -75,18 +78,17 @@ class PayFastController extends Controller
     {
         $passphrase = Setting::get('payfast_passphrase');
         
+        // Build param string in the order received from PayFast (do NOT sort)
         $pfData = $request->except(['signature']);
-        $pfParamString = '';
-
+        $pfOutput = '';
         foreach ($pfData as $key => $val) {
             if ($val !== '') {
-                $pfParamString .= $key . '=' . urlencode(trim($val)) . '&';
+                $pfOutput .= $key . '=' . urlencode(trim((string) $val)) . '&';
             }
         }
+        $pfParamString = substr($pfOutput, 0, -1);
 
-        $pfParamString = substr($pfParamString, 0, -1);
-
-        if ($passphrase) {
+        if (!empty($passphrase)) {
             $pfParamString .= '&passphrase=' . urlencode(trim($passphrase));
         }
 

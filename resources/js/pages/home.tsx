@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import GoogleReviewsEmbed from '@/components/GoogleReviewsEmbed';
+import GoogleReviews from '@/components/GoogleReviews';
 import PartnerSlider from '@/components/PartnerSlider';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 import PublicLayout from '@/layouts/public-layout';
@@ -310,7 +310,7 @@ export default function Home({
                         <p className="text-muted-foreground">Real reviews from happy travelers</p>
                     </div>
                     <div className="mx-auto max-w-4xl">
-                        <GoogleReviewsEmbed showLeaveReviewButton={true} />
+                        <GoogleReviews showLeaveReviewButton={true} maxReviews={3} />
                     </div>
                 </div>
             </section>

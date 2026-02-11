@@ -42,6 +42,17 @@ class CartController extends Controller
         $tour = Tour::findOrFail($validated['tour_id']);
         $cart = $this->getCart();
 
+        // Calculate total participants
+        $totalParticipants = collect($validated['participants'])
+            ->sum('quantity');
+
+        // Validate minimum participants requirement
+        if ($tour->min_participants > 1 && $totalParticipants < $tour->min_participants) {
+            return back()->withErrors([
+                'participants' => "This tour requires a minimum of {$tour->min_participants} participants."
+            ]);
+        }
+
         // Calculate subtotal
         $subtotal = collect($validated['participants'])
             ->sum(fn($p) => $p['price'] * $p['quantity']);

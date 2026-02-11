@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\TourTimeSlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -175,43 +176,81 @@ class CheckoutController extends Controller
         $passphrase = Setting::get('payfast_passphrase');
         $sandbox = Setting::get('payfast_sandbox', true);
 
+        // Detect localhost — PayFast live endpoint blocks requests with localhost URLs.
+        $appUrl = config('app.url', 'http://localhost');
+        $isLocalhost = str_contains($appUrl, 'localhost') || str_contains($appUrl, '127.0.0.1');
+
+        if ($isLocalhost && !$sandbox) {
+            Log::warning('PayFast: APP_URL is localhost — forcing sandbox mode. Set APP_URL to your real domain for live payments.');
+            $sandbox = true;
+        }
+
         if (!$merchantId || !$merchantKey) {
-            // Fallback for testing - redirect to success
             return redirect()->route('checkout.success');
         }
 
+        $bookingIds = collect($bookings)->pluck('id')->toArray();
         $bookingRefs = collect($bookings)->pluck('booking_reference')->join(', ');
 
+        // Sanitize text fields — strip characters that may trigger PayFast/CloudFront WAF
+        $itemName = substr(preg_replace('/[^a-zA-Z0-9 \-_.]/', '', 'Tour Booking ' . $bookingRefs), 0, 100);
+        $itemDescription = substr(preg_replace('/[^a-zA-Z0-9 \-_.]/', '', 'Payment for ' . $bookingRefs), 0, 255);
+
+        // Split customer name
+        $nameParts = explode(' ', $bookings[0]->customer_name, 2);
+
+        // PayFast parameters — MUST be in PayFast's documented order for correct signature
+        // See: https://developers.payfast.co.za/docs#step_1_form_fields
         $data = [
             'merchant_id' => $merchantId,
             'merchant_key' => $merchantKey,
             'return_url' => route('checkout.success'),
             'cancel_url' => route('checkout.cancel'),
             'notify_url' => route('payfast.notify'),
-            'name_first' => explode(' ', $bookings[0]->customer_name)[0],
-            'name_last' => explode(' ', $bookings[0]->customer_name)[1] ?? '',
+            'name_first' => $nameParts[0] ?? '',
+            'name_last' => $nameParts[1] ?? '',
             'email_address' => $email,
+            'm_payment_id' => implode('-', $bookingIds),
             'amount' => number_format($amount, 2, '.', ''),
-            'item_name' => "Tour Booking: {$bookingRefs}",
-            'custom_str1' => json_encode(collect($bookings)->pluck('id')->toArray()),
+            'item_name' => $itemName,
+            'item_description' => $itemDescription,
+            'custom_str1' => implode(',', $bookingIds),
         ];
 
-        // Generate signature
-        $signatureString = '';
+        // Remove empty values — PayFast requires that only non-empty fields
+        // are submitted AND included in the signature. Submitting an empty
+        // field in the form but excluding it from the signature causes mismatch.
+        $data = array_filter($data, function ($val) {
+            return $val !== null && $val !== '';
+        });
+
+        // Generate signature — iterate in the SAME order as above (do NOT sort)
+        $pfOutput = '';
         foreach ($data as $key => $val) {
-            if ($val !== '') {
-                $signatureString .= $key . '=' . urlencode(trim($val)) . '&';
-            }
+            $pfOutput .= $key . '=' . urlencode(trim((string) $val)) . '&';
         }
-        $signatureString = substr($signatureString, 0, -1);
-        if ($passphrase) {
-            $signatureString .= '&passphrase=' . urlencode(trim($passphrase));
+        $getString = substr($pfOutput, 0, -1); // Remove trailing &
+        if (!empty($passphrase)) {
+            $getString .= '&passphrase=' . urlencode(trim($passphrase));
         }
-        $data['signature'] = md5($signatureString);
+        $data['signature'] = md5($getString);
 
         $payFastUrl = $sandbox
             ? 'https://sandbox.payfast.co.za/eng/process'
             : 'https://www.payfast.co.za/eng/process';
+
+        Log::info('PayFast payment initiated', [
+            'sandbox' => $sandbox,
+            'is_localhost' => $isLocalhost,
+            'payfast_url' => $payFastUrl,
+            'merchant_id' => $merchantId,
+            'amount' => $data['amount'],
+            'item_name' => $data['item_name'],
+            'return_url' => $data['return_url'],
+            'notify_url' => $data['notify_url'],
+            'signature_string' => $getString,
+            'signature' => $data['signature'],
+        ]);
 
         return Inertia::render('checkout/redirect-to-payfast', [
             'payFastUrl' => $payFastUrl,

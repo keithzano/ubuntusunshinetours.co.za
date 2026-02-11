@@ -9,9 +9,9 @@ interface GoogleReviewsEmbedProps {
 export default function GoogleReviewsEmbed({ 
     showLeaveReviewButton = true 
 }: GoogleReviewsEmbedProps) {
-    const placeId = 'ChIJx59QCz1CDIARMyL6HY5SotI';
-    const mapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-    const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+    const placeId = 'CTMi-h2OUqLSEAE';
+    const mapsUrl = `https://g.page/r/${placeId}`;
+    const reviewUrl = `https://g.page/r/${placeId}/review`;
 
     const handleViewReviews = () => {
         window.open(mapsUrl, '_blank');

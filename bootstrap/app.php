@@ -26,6 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
+
+        // Exclude PayFast ITN callback from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            'payfast/notify',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
