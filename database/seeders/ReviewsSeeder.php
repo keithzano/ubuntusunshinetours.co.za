@@ -11,93 +11,63 @@ class ReviewsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get some bookings to create reviews for
-        $bookings = Booking::with('tour')->take(10)->get();
-        
-        if ($bookings->isEmpty()) {
-            $this->command->warn('No bookings found. Please run ToursSeeder first.');
+        // Delete any old seeded/fake reviews first
+        Review::query()->delete();
+
+        $bookings = Booking::with('tour')->take(3)->get();
+
+        if ($bookings->count() < 3) {
+            $this->command->warn('Need at least 3 bookings. Please run BookingsSeeder first.');
             return;
         }
 
-        $sampleReviews = [
+        // Real Google reviews from Ubuntu Sunshine Tours
+        $realReviews = [
             [
+                'reviewer_name' => 'Imran Chowdhury',
+                'reviewer_email' => 'imran.chowdhury@review.google',
                 'rating' => 5,
-                'title' => 'Absolutely Amazing Experience!',
-                'comment' => 'This was one of the best tours I\'ve ever been on. The guide was knowledgeable, the scenery was breathtaking, and everything was well-organized. Would definitely recommend to anyone visiting South Africa!',
+                'title' => 'Highly Recommend',
+                'comment' => 'I had a great time with my family. We saw so many animals and the guide had so much knowledge about the park and the city. Highly recommend using this company.',
             ],
             [
+                'reviewer_name' => 'Sandra Schwemmer',
+                'reviewer_email' => 'sandra.schwemmer@review.google',
                 'rating' => 5,
-                'title' => 'Professional and Friendly Service',
-                'comment' => 'From booking to the actual tour, everything was seamless. The guide went above and beyond to ensure we had a great time. The wildlife viewing was incredible and we got some amazing photos.',
+                'title' => 'Absolute Fantastic Day',
+                'comment' => 'We booked the double safari tour combined with a city tour. We had an absolute fantastic day. Our guide Mariska was very knowledgeable and passionate about the animals and the city.',
             ],
             [
-                'rating' => 4,
-                'title' => 'Great Tour with Minor Issues',
-                'comment' => 'Overall a fantastic experience. The tour was well-planned and the guide was excellent. Only minor issue was that the vehicle was a bit cramped, but the views and experience made up for it.',
-            ],
-            [
+                'reviewer_name' => 'Mizan Chowdhury',
+                'reviewer_email' => 'mizan.chowdhury@review.google',
                 'rating' => 5,
-                'title' => 'Unforgettable Safari Adventure',
-                'comment' => 'The Addo Elephant Park tour exceeded all our expectations. We saw so many animals and the guide knew exactly where to find them. The lunch provided was also delicious. Highly recommend!',
-            ],
-            [
-                'rating' => 5,
-                'title' => 'Perfect Wine Tasting Experience',
-                'comment' => 'Stellenbosch wine tour was absolutely perfect. The wineries selected were excellent, and the guide provided great insights into South African wines. The lunch at the second winery was exceptional.',
-            ],
-            [
-                'rating' => 4,
-                'title' => 'Good City Tour',
-                'comment' => 'Nice overview of Cape Town\'s highlights. Table Mountain was definitely the highlight. The guide was knowledgeable but the tour felt a bit rushed at some locations. Still worth it for the views alone.',
-            ],
-            [
-                'rating' => 5,
-                'title' => 'Exceptional Service and Experience',
-                'comment' => 'Ubuntu Sunshine Tours provided exceptional service from start to finish. The booking process was easy, communication was excellent, and the tour itself was unforgettable. Will definitely book with them again!',
-            ],
-            [
-                'rating' => 5,
-                'title' => 'Breathtaking Views and Great Guide',
-                'comment' => 'The Garden Route tour was absolutely stunning. Our guide, James, was fantastic - very knowledgeable and passionate about the region. The stops were well-chosen and the timing was perfect.',
-            ],
-            [
-                'rating' => 4,
-                'title' => 'Very Enjoyable Experience',
-                'comment' => 'Had a great time on the city tour. The guide was friendly and informative. The only reason for 4 stars instead of 5 is that we felt a bit rushed at the Bo-Kaap stop. Otherwise, everything was excellent.',
-            ],
-            [
-                'rating' => 5,
-                'title' => 'Beyond Expectations!',
-                'comment' => 'This tour exceeded all my expectations. The attention to detail, the quality of the guide, and the overall experience was just outstanding. I\'ve already recommended it to all my friends planning to visit South Africa.',
+                'title' => 'Best Time of My Life',
+                'comment' => 'Great service. Had the best time of my life.',
             ],
         ];
 
         foreach ($bookings as $index => $booking) {
-            if (!isset($sampleReviews[$index])) {
-                break;
-            }
+            $reviewData = $realReviews[$index];
 
-            $reviewData = $sampleReviews[$index];
-            
-            // Create review
-            Review::create([
-                'tour_id' => $booking->tour_id,
-                'booking_id' => $booking->id,
-                'user_id' => $booking->user_id,
-                'reviewer_name' => $booking->customer_name,
-                'reviewer_email' => $booking->customer_email,
-                'rating' => $reviewData['rating'],
-                'title' => $reviewData['title'],
-                'comment' => $reviewData['comment'],
-                'is_verified' => true,
-                'is_approved' => true, // Auto-approve for demo purposes
-                'approved_at' => now(),
-            ]);
+            Review::updateOrCreate(
+                ['booking_id' => $booking->id],
+                [
+                    'tour_id' => $booking->tour_id,
+                    'user_id' => $booking->user_id,
+                    'reviewer_name' => $reviewData['reviewer_name'],
+                    'reviewer_email' => $reviewData['reviewer_email'],
+                    'rating' => $reviewData['rating'],
+                    'title' => $reviewData['title'],
+                    'comment' => $reviewData['comment'],
+                    'is_verified' => true,
+                    'is_approved' => true,
+                    'approved_at' => now(),
+                ]
+            );
 
-            // Update tour rating
             $booking->tour->updateRating();
         }
 
-        $this->command->info('Created ' . min(count($sampleReviews), $bookings->count()) . ' sample reviews.');
+        $this->command->info('Created 3 real Google reviews.');
     }
 }

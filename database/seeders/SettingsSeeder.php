@@ -13,7 +13,7 @@ class SettingsSeeder extends Seeder
             ['group' => 'general', 'key' => 'site_name', 'value' => 'Ubuntu Sunshine Tours', 'type' => 'string', 'is_public' => true],
             ['group' => 'general', 'key' => 'site_description', 'value' => 'Experience unforgettable tours in Cape Town and Port Elizabeth', 'type' => 'string', 'is_public' => true],
             ['group' => 'general', 'key' => 'contact_email', 'value' => 'info@ubuntusunshinetours.co.za', 'type' => 'string', 'is_public' => true],
-            ['group' => 'general', 'key' => 'contact_phone', 'value' => '+27 12 345 6789', 'type' => 'string', 'is_public' => true],
+            ['group' => 'general', 'key' => 'contact_phone', 'value' => '+27 81 596 4461', 'type' => 'string', 'is_public' => true],
             ['group' => 'general', 'key' => 'currency', 'value' => 'ZAR', 'type' => 'string', 'is_public' => true],
             ['group' => 'general', 'key' => 'currency_symbol', 'value' => 'R', 'type' => 'string', 'is_public' => true],
             ['group' => 'payfast', 'key' => 'payfast_merchant_id', 'value' => '', 'type' => 'string'],
@@ -25,7 +25,10 @@ class SettingsSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            Setting::create($setting);
+            Setting::updateOrCreate(
+                ['group' => $setting['group'], 'key' => $setting['key']],
+                $setting
+            );
         }
     }
 }

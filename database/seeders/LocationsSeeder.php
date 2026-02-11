@@ -19,7 +19,10 @@ class LocationsSeeder extends Seeder
         ];
 
         foreach ($locations as $location) {
-            Location::create(array_merge($location, ['country' => 'South Africa', 'is_active' => true]));
+            Location::updateOrCreate(
+                ['slug' => $location['slug']],
+                array_merge($location, ['country' => 'South Africa', 'is_active' => true])
+            );
         }
     }
 }

@@ -19,7 +19,10 @@ class CategoriesSeeder extends Seeder
         ];
 
         foreach ($categories as $index => $category) {
-            Category::create(array_merge($category, ['sort_order' => $index, 'is_active' => true]));
+            Category::updateOrCreate(
+                ['slug' => $category['slug']],
+                array_merge($category, ['sort_order' => $index, 'is_active' => true])
+            );
         }
     }
 }

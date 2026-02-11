@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Review;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -15,38 +16,66 @@ class GoogleReviewsService
 
     public function __construct()
     {
-        $this->apiKey = config('services.google.api_key');
+        $this->apiKey = config('services.google.api_key', '');
         $this->placeId = config('services.google.place_id', '');
         $this->reviewUrl = config('services.google.review_url', '');
         $this->mapsUrl = config('services.google.maps_url', '');
     }
 
     /**
-     * Fetch Google Reviews for the business
+     * Fetch reviews — tries Google Places first, falls back to database reviews
      */
     public function getReviews(): array
     {
-        return Cache::remember('google_reviews:' . $this->placeId, 3600, function () {
-            try {
-                if (empty($this->apiKey) || empty($this->placeId)) {
-                    return $this->getEmptyReviews();
+        return Cache::remember('google_reviews:v2', 3600, function () {
+            // Try Google Places API if configured
+            if (!empty($this->apiKey) && !empty($this->placeId)) {
+                try {
+                    $placeDetails = $this->getPlaceDetails($this->placeId);
+                    if ($placeDetails) {
+                        return [
+                            'rating' => $placeDetails['rating'] ?? 0,
+                            'total_reviews' => $placeDetails['user_ratings_total'] ?? 0,
+                            'reviews' => $placeDetails['reviews'] ?? [],
+                            'source' => 'google',
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to fetch Google Reviews: ' . $e->getMessage());
                 }
-
-                $placeDetails = $this->getPlaceDetails($this->placeId);
-                if (!$placeDetails) {
-                    return $this->getEmptyReviews();
-                }
-
-                return [
-                    'rating' => $placeDetails['rating'] ?? 0,
-                    'total_reviews' => $placeDetails['user_ratings_total'] ?? 0,
-                    'reviews' => $placeDetails['reviews'] ?? [],
-                ];
-            } catch (\Exception $e) {
-                Log::error('Failed to fetch Google Reviews: ' . $e->getMessage());
-                return $this->getEmptyReviews();
             }
+
+            // Fall back to database reviews
+            return $this->getDatabaseReviews();
         });
+    }
+
+    /**
+     * Get approved reviews from the database as fallback
+     */
+    private function getDatabaseReviews(): array
+    {
+        $reviews = Review::approved()
+            ->with('tour')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $avgRating = $reviews->avg('rating') ?? 0;
+
+        return [
+            'rating' => round($avgRating, 1),
+            'total_reviews' => $reviews->count(),
+            'reviews' => $reviews->map(function ($review) {
+                return [
+                    'author_name' => $review->reviewer_name,
+                    'rating' => $review->rating,
+                    'relative_time_description' => $review->created_at->diffForHumans(),
+                    'text' => $review->comment,
+                    'profile_photo_url' => null,
+                ];
+            })->toArray(),
+            'source' => 'database',
+        ];
     }
 
     /**
@@ -69,22 +98,14 @@ class GoogleReviewsService
         }
 
         $result = $data['result'] ?? null;
-        
-        // Check if we got the right business (Ubuntu Sunshine Tours)
+
+        // Reject results from wrong businesses
         if ($result && !str_contains(strtolower($result['name'] ?? ''), 'ubuntu sunshine')) {
-            Log::warning('Google Places API returned unexpected business name: ' . ($result['name'] ?? 'Unknown') . ' (configured place_id=' . $this->placeId . ')');
+            Log::warning('Google Places API returned wrong business: ' . ($result['name'] ?? 'Unknown') . ' — falling back to DB reviews');
+            return null;
         }
 
         return $result;
-    }
-
-    private function getEmptyReviews(): array
-    {
-        return [
-            'rating' => 0,
-            'total_reviews' => 0,
-            'reviews' => [],
-        ];
     }
 
     /**

@@ -10,19 +10,23 @@ class UsersSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@ubuntusunshinetours.co.za',
-            'role' => 'admin',
-            'password' => bcrypt('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@ubuntusunshinetours.co.za'],
+            [
+                'name' => 'Admin User',
+                'role' => 'admin',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         // Create test client
-        User::factory()->create([
-            'name' => 'Test Client',
-            'email' => 'client@example.com',
-            'role' => 'client',
-            'password' => bcrypt('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'client@example.com'],
+            [
+                'name' => 'Test Client',
+                'role' => 'client',
+                'password' => bcrypt('password'),
+            ]
+        );
     }
 }
