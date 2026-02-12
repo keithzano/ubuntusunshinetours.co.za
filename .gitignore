@@ -25,3 +25,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+download_from_seeder_fixed.php
+/downloaded_images
