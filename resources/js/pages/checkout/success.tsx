@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { Calendar, Check, Clock, Download, Mail, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,20 @@ interface SuccessPageProps extends PageProps {
     bookings: Booking[];
 }
 
+interface Settings {
+    contact_email?: string;
+}
+
 export default function CheckoutSuccess({ bookings }: SuccessPageProps) {
+    const [settings, setSettings] = useState<Settings>({});
+
+    useEffect(() => {
+        fetch('/api/settings')
+            .then((res) => res.json())
+            .then((data) => setSettings(data))
+            .catch(console.error);
+    }, []);
+
     return (
         <PublicLayout>
             <Head title="Booking Confirmed - Ubuntu Sunshine Tours" />
@@ -159,7 +173,7 @@ export default function CheckoutSuccess({ bookings }: SuccessPageProps) {
                     {/* Need Help */}
                     <p className="mt-8 text-sm text-muted-foreground">
                         Need help with your booking?{' '}
-                        <a href="mailto:info@ubuntusunshinetours.co.za" className="text-primary hover:underline">
+                        <a href={`mailto:${settings.contact_email || 'info@ubuntusunshinetours.co.za'}`} className="text-primary hover:underline">
                             Contact us
                         </a>
                     </p>

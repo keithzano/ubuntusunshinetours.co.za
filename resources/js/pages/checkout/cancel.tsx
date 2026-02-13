@@ -1,12 +1,26 @@
 import { Head, Link } from '@inertiajs/react';
 import { AlertCircle, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import PublicLayout from '@/layouts/public-layout';
 import { PageProps } from '@/types';
 
+interface Settings {
+    contact_email?: string;
+}
+
 export default function CheckoutCancel({}: PageProps) {
+    const [settings, setSettings] = useState<Settings>({});
+
+    useEffect(() => {
+        fetch('/api/settings')
+            .then((res) => res.json())
+            .then((data) => setSettings(data))
+            .catch(console.error);
+    }, []);
+
     return (
         <PublicLayout>
             <Head title="Payment Cancelled - Ubuntu Sunshine Tours" />
@@ -54,7 +68,7 @@ export default function CheckoutCancel({}: PageProps) {
 
                     <p className="mt-8 text-sm text-muted-foreground">
                         Having trouble with payment?{' '}
-                        <a href="mailto:info@ubuntusunshinetours.co.za" className="text-primary hover:underline">
+                        <a href={`mailto:${settings.contact_email || 'info@ubuntusunshinetours.co.za'}`} className="text-primary hover:underline">
                             Contact us
                         </a>{' '}
                         for assistance.

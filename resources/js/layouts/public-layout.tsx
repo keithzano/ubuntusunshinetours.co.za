@@ -27,18 +27,32 @@ interface PublicLayoutProps {
     children: ReactNode;
 }
 
+interface Settings {
+    contact_phone?: string;
+    contact_email?: string;
+}
+
 export default function PublicLayout({ children }: PublicLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
     const [cartCount, setCartCount] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [settings, setSettings] = useState<Settings>({});
 
     useEffect(() => {
         // Fetch cart count
         fetch('/cart/count')
             .then((res) => res.json())
             .then((data) => setCartCount(data.count || 0))
-            .catch(() => setCartCount(0));
+            .catch(console.error);
+        
+        // Fetch settings
+        fetch('/api/settings')
+            .then((res) => res.json())
+            .then((data) => setSettings(data))
+            .catch(console.error);
+    }, []);
 
+    useEffect(() => {
         // Listen for cart updates
         const handleCartUpdate = (event: CustomEvent) => {
             setCartCount(event.detail.count);
@@ -343,14 +357,14 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                             <ul className="space-y-3 text-sm">
                                 <li className="flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
-                                    <a href="tel:+27123456789" className="hover:text-white">
-                                        +27 12 345 6789
+                                    <a href={`tel:${settings.contact_phone || '+27123456789'}`} className="hover:text-white">
+                                        {settings.contact_phone || '+27 12 345 6789'}
                                     </a>
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
-                                    <a href="mailto:info@ubuntusunshinetours.co.za" className="hover:text-white">
-                                        info@ubuntusunshinetours.co.za
+                                    <a href={`mailto:${settings.contact_email || 'info@ubuntusunshinetours.co.za'}`} className="hover:text-white">
+                                        {settings.contact_email || 'info@ubuntusunshinetours.co.za'}
                                     </a>
                                 </li>
                             </ul>

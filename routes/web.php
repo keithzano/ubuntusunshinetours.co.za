@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TourController as AdminTourController;
+use App\Http\Controllers\PublicSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -158,6 +159,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 Route::prefix('api')->group(function () {
     Route::get('/google-reviews', [App\Http\Controllers\Api\GoogleReviewsController::class, 'index']);
     Route::get('/google-reviews/summary', [App\Http\Controllers\Api\GoogleReviewsController::class, 'summary']);
+    Route::get('/settings', [PublicSettingsController::class, 'index']);
 });
 
 require __DIR__.'/settings.php';
