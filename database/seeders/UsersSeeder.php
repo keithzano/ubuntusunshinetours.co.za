@@ -19,14 +19,31 @@ class UsersSeeder extends Seeder
             ]
         );
 
-        // Create test client
-        User::updateOrCreate(
-            ['email' => 'client@example.com'],
+        // Create real clients from Google reviews
+        $clients = [
             [
-                'name' => 'Test Client',
-                'role' => 'client',
-                'password' => bcrypt('password'),
-            ]
-        );
+                'email' => 'imran.chowdhury@review.google',
+                'name' => 'Imran Chowdhury',
+            ],
+            [
+                'email' => 'sandra.schwemmer@review.google', 
+                'name' => 'Sandra Schwemmer',
+            ],
+            [
+                'email' => 'mizan.chowdhury@review.google',
+                'name' => 'Mizan Chowdhury',
+            ],
+        ];
+
+        foreach ($clients as $client) {
+            User::updateOrCreate(
+                ['email' => $client['email']],
+                [
+                    'name' => $client['name'],
+                    'role' => 'client',
+                    'password' => bcrypt('password'),
+                ]
+            );
+        }
     }
 }

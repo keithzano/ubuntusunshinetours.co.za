@@ -18,8 +18,7 @@ class DatabaseSeeder extends Seeder
             LocationsSeeder::class,
             SettingsSeeder::class,
             ToursSeeder::class,
-            BookingsSeeder::class,
-            ReviewsSeeder::class,
+            GoogleReviewsSeeder::class,
         ]);
     }
 }
