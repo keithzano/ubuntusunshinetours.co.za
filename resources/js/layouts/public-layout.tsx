@@ -81,7 +81,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             )}
 
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
+            <header className="sticky top-0 z-50 border-b bg-background shadow-sm">
                 <div className="container mx-auto px-4">
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
@@ -100,25 +100,25 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                         <nav className="hidden items-center gap-6 md:flex">
                             <Link
                                 href="/tours"
-                                className="text-sm font-medium text-gray-700 hover:text-primary"
+                                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                             >
                                 Tours
                             </Link>
                             <Link
                                 href="/tours?category=safari"
-                                className="text-sm font-medium text-gray-700 hover:text-primary"
+                                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                             >
                                 Safaris
                             </Link>
                             <Link
                                 href="/tours?category=city-tour"
-                                className="text-sm font-medium text-gray-700 hover:text-primary"
+                                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                             >
                                 City Tours
                             </Link>
                             <Link
                                 href="/booking/lookup"
-                                className="text-sm font-medium text-gray-700 hover:text-primary"
+                                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                             >
                                 Find Booking
                             </Link>
@@ -189,45 +189,45 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                                     <nav className="flex flex-col gap-4 pt-8">
                                         <Link
                                             href="/tours"
-                                            className="text-lg font-medium"
+                                            className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             All Tours
                                         </Link>
                                         <Link
                                             href="/tours?category=safari"
-                                            className="text-lg font-medium"
+                                            className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             Safaris
                                         </Link>
                                         <Link
                                             href="/tours?category=city-tour"
-                                            className="text-lg font-medium"
+                                            className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             City Tours
                                         </Link>
                                         <Link
                                             href="/booking/lookup"
-                                            className="text-lg font-medium"
+                                            className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             Find Booking
                                         </Link>
-                                        <hr />
+                                        <hr className="border-border" />
                                         {auth?.user ? (
                                             <>
                                                 <Link
                                                     href="/my/bookings"
-                                                    className="text-lg font-medium"
+                                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     My Bookings
                                                 </Link>
                                                 <Link
                                                     href="/my/wishlist"
-                                                    className="text-lg font-medium"
+                                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     Wishlist
@@ -236,7 +236,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                                                     href="/logout"
                                                     method="post"
                                                     as="button"
-                                                    className="text-left text-lg font-medium text-red-600"
+                                                    className="text-left text-lg font-medium text-destructive hover:text-destructive/80 transition-colors"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     Logout
@@ -246,14 +246,14 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                                             <>
                                                 <Link
                                                     href="/login"
-                                                    className="text-lg font-medium"
+                                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     Login
                                                 </Link>
                                                 <Link
                                                     href="/register"
-                                                    className="text-lg font-medium"
+                                                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     Sign Up
