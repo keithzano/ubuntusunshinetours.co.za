@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TourController as AdminTourController;
 use App\Http\Controllers\PublicSettingsController;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -163,3 +164,18 @@ Route::prefix('api')->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+// Test email route (remove in production)
+Route::get('/test-mail', function () {
+    try {
+        Mail::raw('This is a test email from Ubuntu Sunshine Tours using PHP mail.', function ($message) {
+            $message->to('test@example.com')
+                   ->subject('PHP Mail Test - Ubuntu Sunshine Tours')
+                   ->from('info@ubuntusunshinetours.co.za', 'Ubuntu Sunshine Tours');
+        });
+        
+        return '✅ Email sent successfully using PHP mail!';
+    } catch (\Exception $e) {
+        return '❌ Error sending email: ' . $e->getMessage();
+    }
+});
