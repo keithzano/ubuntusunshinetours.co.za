@@ -133,7 +133,7 @@ class CartController extends Controller
     private function getCart(): Cart
     {
         $sessionId = Session::getId();
-        $userId = auth()->id();
+        $userId = auth()->check() ? auth()->id() : null;
 
         return Cart::getOrCreate($userId, $sessionId);
     }
