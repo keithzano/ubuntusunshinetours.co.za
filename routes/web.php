@@ -179,12 +179,15 @@ Route::get('/debug-booking/{id}', function ($id) {
     
     return [
         'user_id' => $user->id,
+        'user_id_type' => gettype($user->id),
         'user_email' => $user->email,
         'user_role' => $user->role,
         'booking_id' => $booking->id,
         'booking_user_id' => $booking->user_id,
+        'booking_user_id_type' => gettype($booking->user_id),
         'booking_customer_email' => $booking->customer_email,
         'can_view' => $user->id === $booking->user_id,
+        'can_view_strict' => $user->id == $booking->user_id,
         'is_admin' => $user->isAdmin(),
     ];
 });
