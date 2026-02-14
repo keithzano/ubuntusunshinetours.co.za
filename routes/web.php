@@ -163,3 +163,28 @@ Route::prefix('api')->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+// Temporary debug route - remove after checking
+Route::get('/debug-booking/{id}', function ($id) {
+    if (!auth()->check()) {
+        return 'Not authenticated';
+    }
+    
+    $user = auth()->user();
+    $booking = \App\Models\Booking::find($id);
+    
+    if (!$booking) {
+        return 'Booking not found';
+    }
+    
+    return [
+        'user_id' => $user->id,
+        'user_email' => $user->email,
+        'user_role' => $user->role,
+        'booking_id' => $booking->id,
+        'booking_user_id' => $booking->user_id,
+        'booking_customer_email' => $booking->customer_email,
+        'can_view' => $user->id === $booking->user_id,
+        'is_admin' => $user->isAdmin(),
+    ];
+});
