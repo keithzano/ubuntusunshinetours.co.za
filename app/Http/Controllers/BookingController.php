@@ -90,7 +90,9 @@ class BookingController extends Controller
             'booking' => $booking,
         ]);
 
-        return $pdf->download("invoice-{$booking->invoice_number}.pdf");
+        $filename = "invoice-{$booking->invoice_number}.pdf";
+        
+        return $pdf->download($filename);
     }
 
     public function publicInvoice(Booking $booking)
@@ -112,7 +114,9 @@ class BookingController extends Controller
             'booking' => $booking,
         ]);
 
-        return $pdf->download("invoice-{$booking->invoice_number}.pdf");
+        $filename = "invoice-{$booking->invoice_number}.pdf";
+        
+        return $pdf->download($filename);
     }
 
     public function lookup(Request $request): Response

@@ -248,7 +248,7 @@
                     @foreach($booking->participants as $participant)
                         <tr>
                             <td>{{ $booking->booking_reference }}</td>
-                            <td>{{ $participant['quantity'] }} x {{ $participant['name'] }}</td>
+                            <td>{{ $participant['quantity'] }} x {{ $participant['tier'] }}</td>
                             <td>R {{ number_format($participant['price'], 2) }}</td>
                             <td>{{ $participant['quantity'] }}</td>
                             <td class="text-right">R {{ number_format($participant['price'] * $participant['quantity'], 2) }}</td>

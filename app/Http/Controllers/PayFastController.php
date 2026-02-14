@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Notifications\BookingConfirmed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PayFastController extends Controller
 {
@@ -66,7 +67,7 @@ class PayFastController extends Controller
             $booking->tour->increment('bookings_count');
 
             // Send confirmation email
-            // $booking->notify(new BookingConfirmed($booking));
+            Mail::to($booking->customer_email)->send(new \App\Mail\BookingConfirmationMail($booking));
         }
 
         Log::info('PayFast payment processed successfully', ['booking_ids' => $bookingIds]);

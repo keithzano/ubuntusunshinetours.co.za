@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Mail\BookingConfirmationMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -77,6 +79,11 @@ class BookingController extends Controller
 
         if ($request->status === 'confirmed') {
             $booking->update(['confirmed_at' => now()]);
+            
+            // Send confirmation email if booking is paid
+            if ($booking->isPaid()) {
+                Mail::to($booking->customer_email)->send(new BookingConfirmationMail($booking));
+            }
         }
 
         if ($request->status === 'cancelled') {
@@ -93,6 +100,11 @@ class BookingController extends Controller
         ]);
 
         $booking->update(['payment_status' => $request->payment_status]);
+
+        // Send confirmation email when payment is marked as paid and booking is confirmed
+        if ($request->payment_status === 'paid' && $booking->status === 'confirmed') {
+            Mail::to($booking->customer_email)->send(new BookingConfirmationMail($booking));
+        }
 
         return back()->with('success', 'Payment status updated');
     }

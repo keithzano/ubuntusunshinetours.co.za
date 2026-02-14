@@ -54,6 +54,14 @@ Great news! Your booking has been confirmed. Get ready for an amazing experience
 View Booking Details
 @endcomponent
 
+@if($booking->isPaid())
+## 📎 Your Invoice
+
+Your official invoice is attached to this email as a PDF file. Please keep it for your records.
+
+You can also download your invoice anytime from your booking page.
+@endif
+
 ## Need to Make Changes?
 
 If you need to modify or cancel your booking, please visit your booking page or contact us.

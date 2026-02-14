@@ -182,10 +182,10 @@ export default function ClientBookingShow({ booking }: BookingShowProps) {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Button className="w-full" variant="outline" asChild>
-                                <Link href={`/my/bookings/${booking.id}/invoice`}>
+                                <a href={`/my/bookings/${booking.id}/invoice`} target="_blank" rel="noopener noreferrer">
                                     <FileText className="mr-2 h-4 w-4" />
                                     Download Invoice
-                                </Link>
+                                </a>
                             </Button>
                             
                             {booking.status === 'completed' && booking.payment_status === 'paid' && !booking.review && (
@@ -293,10 +293,10 @@ export default function ClientBookingShow({ booking }: BookingShowProps) {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Button className="w-full" variant="outline" asChild>
-                                <Link href={`/my/bookings/${booking.id}/invoice`}>
+                                <a href={`/my/bookings/${booking.id}/invoice`} target="_blank" rel="noopener noreferrer">
                                     <FileText className="mr-2 h-4 w-4" />
                                     Download Invoice
-                                </Link>
+                                </a>
                             </Button>
                             
                             {/* Leave Review Button */}
