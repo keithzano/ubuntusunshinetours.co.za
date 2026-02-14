@@ -373,7 +373,7 @@ export default function ToursIndex({
                                     <Filter className="mr-2 h-4 w-4" />
                                     Filters
                                     {hasActiveFilters && (
-                                        <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                                        <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                                             Active
                                         </span>
                                     )}

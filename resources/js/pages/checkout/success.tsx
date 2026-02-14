@@ -134,7 +134,7 @@ export default function CheckoutSuccess({ bookings }: SuccessPageProps) {
                         </CardHeader>
                         <CardContent className="space-y-4 text-left">
                             <div className="flex items-start gap-3">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                                     1
                                 </div>
                                 <div>
@@ -145,7 +145,7 @@ export default function CheckoutSuccess({ bookings }: SuccessPageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                                     2
                                 </div>
                                 <div>
@@ -157,7 +157,7 @@ export default function CheckoutSuccess({ bookings }: SuccessPageProps) {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                                     3
                                 </div>
                                 <div>
