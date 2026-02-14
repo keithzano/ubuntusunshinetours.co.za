@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Minus, Plus, Save, Trash2 } from 'lucide-react';
+import { Minus, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -422,12 +422,30 @@ export default function AdminToursEdit({ tour, categories, locations }: EditTour
                                     <p className="text-sm font-medium mb-2">Current Gallery Images:</p>
                                     <div className="grid grid-cols-4 gap-2">
                                         {tour.gallery.map((image, index) => (
-                                            <img
-                                                key={index}
-                                                src={`/storage/${image}`}
-                                                alt={`Gallery image ${index + 1}`}
-                                                className="w-full h-20 object-cover rounded"
-                                            />
+                                            <div key={index} className="relative group">
+                                                <img
+                                                    src={`/storage/${image}`}
+                                                    alt={`Gallery image ${index + 1}`}
+                                                    className="w-full h-20 object-cover rounded"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (confirm('Are you sure you want to delete this image?')) {
+                                                            router.delete(`/admin/tours/${tour.id}/gallery/${encodeURIComponent(image)}`, {
+                                                                onSuccess: () => {
+                                                                    // Refresh the page to show updated gallery
+                                                                    window.location.reload();
+                                                                }
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    title="Delete image"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </div>
                                         ))}
                                     </div>
                                 </div>

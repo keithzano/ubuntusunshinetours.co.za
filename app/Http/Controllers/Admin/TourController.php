@@ -69,8 +69,10 @@ class TourController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            $validated['featured_image'] = $request->file('featured_image')
-                ->store('tours', 'public');
+            // Generate unique filename
+            $file = $request->file('featured_image');
+            $filename = 'tour-new-' . time() . '.' . $file->getClientOriginalExtension();
+            $validated['featured_image'] = $file->storeAs('tours', $filename, 'public');
         }
 
         // Handle media files upload (gallery)
@@ -78,9 +80,11 @@ class TourController extends Controller
             $gallery = [];
             $mediaFiles = $request->file('media_files');
             if (is_array($mediaFiles)) {
-                foreach ($mediaFiles as $file) {
+                foreach ($mediaFiles as $index => $file) {
                     if ($file && $file->isValid()) {
-                        $path = $file->store('tours/gallery', 'public');
+                        // Generate unique filename
+                        $filename = 'tour-new-gallery-' . time() . '-' . $index . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs('tours/gallery', $filename, 'public');
                         $gallery[] = $path;
                     }
                 }
@@ -144,28 +148,46 @@ class TourController extends Controller
 
             // Handle featured image upload
             if ($request->hasFile('featured_image')) {
-                // Delete old image
+                // Delete old image only if no other tour is using it
                 if ($tour->featured_image) {
-                    Storage::disk('public')->delete($tour->featured_image);
+                    $otherToursUsingImage = Tour::where('id', '!=', $tour->id)
+                        ->where('featured_image', $tour->featured_image)
+                        ->count();
+                    
+                    if ($otherToursUsingImage === 0) {
+                        Storage::disk('public')->delete($tour->featured_image);
+                    }
                 }
-                $validated['featured_image'] = $request->file('featured_image')
-                    ->store('tours', 'public');
+                // Generate unique filename
+                $file = $request->file('featured_image');
+                $filename = 'tour-' . $tour->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+                $validated['featured_image'] = $file->storeAs('tours', $filename, 'public');
             }
 
             // Handle media files upload (gallery)
             if ($request->hasFile('media_files')) {
-                // Delete old gallery
+                // Delete old gallery images only if no other tour is using them
                 if ($tour->gallery) {
                     foreach ($tour->gallery as $image) {
-                        Storage::disk('public')->delete($image);
+                        // Check if any other tour is using this image
+                        $otherToursUsingImage = Tour::where('id', '!=', $tour->id)
+                            ->whereJsonContains('gallery', $image)
+                            ->count();
+                        
+                        if ($otherToursUsingImage === 0) {
+                            Storage::disk('public')->delete($image);
+                        }
                     }
                 }
                 $gallery = [];
                 $mediaFiles = $request->file('media_files');
                 if (is_array($mediaFiles)) {
-                    foreach ($mediaFiles as $file) {
+                    foreach ($mediaFiles as $index => $file) {
                         if ($file && $file->isValid()) {
-                            $gallery[] = $file->store('tours/gallery', 'public');
+                            // Generate unique filename
+                            $filename = 'tour-' . $tour->id . '-gallery-' . time() . '-' . $index . '.' . $file->getClientOriginalExtension();
+                            $path = $file->storeAs('tours/gallery', $filename, 'public');
+                            $gallery[] = $path;
                         }
                     }
                 }
@@ -210,15 +232,53 @@ class TourController extends Controller
         }
     }
 
+    public function deleteGalleryImage(Tour $tour, string $image)
+    {
+        // Check if the image exists in the tour's gallery
+        if (!$tour->gallery || !in_array($image, $tour->gallery)) {
+            return back()->with('error', 'Image not found in gallery');
+        }
+
+        // Check if any other tour is using this image
+        $otherToursUsingImage = Tour::where('id', '!=', $tour->id)
+            ->whereJsonContains('gallery', $image)
+            ->count();
+
+        // Remove from gallery
+        $gallery = $tour->gallery;
+        $gallery = array_values(array_filter($gallery, fn($img) => $img !== $image));
+        $tour->gallery = $gallery;
+        $tour->save();
+
+        // Delete file only if no other tour is using it
+        if ($otherToursUsingImage === 0) {
+            Storage::disk('public')->delete($image);
+        }
+
+        return back()->with('success', 'Gallery image deleted successfully');
+    }
+
     public function destroy(Tour $tour)
     {
-        // Delete images
+        // Delete images only if no other tour is using them
         if ($tour->featured_image) {
-            Storage::disk('public')->delete($tour->featured_image);
+            $otherToursUsingImage = Tour::where('id', '!=', $tour->id)
+                ->where('featured_image', $tour->featured_image)
+                ->count();
+            
+            if ($otherToursUsingImage === 0) {
+                Storage::disk('public')->delete($tour->featured_image);
+            }
         }
         if ($tour->gallery) {
             foreach ($tour->gallery as $image) {
-                Storage::disk('public')->delete($image);
+                $otherToursUsingImage = Tour::where('id', '!=', $tour->id)
+                    ->whereJsonContains('gallery', $image)
+                    ->count();
+                
+                if ($otherToursUsingImage === 0) {
+                    Storage::disk('public')->delete($image);
+                }
             }
         }
 

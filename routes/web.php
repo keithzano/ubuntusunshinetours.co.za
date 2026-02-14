@@ -25,7 +25,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Tours
-Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
+Route::resource('tours', TourController::class)->names('tours');
+Route::delete('tours/{tour}/gallery/{image}', [TourController::class, 'deleteGalleryImage'])->name('tours.gallery.delete');
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
 Route::get('/tours/{tour}/availability', [TourController::class, 'getAvailability'])->name('tours.availability');
 Route::get('/tours/{tour}/reviews', [ReviewController::class, 'tourReviews'])->name('tours.reviews');
@@ -96,6 +97,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/tours/{tour}/edit', [AdminTourController::class, 'edit'])->name('tours.edit');
     Route::put('/tours/{tour}', [AdminTourController::class, 'update'])->name('tours.update');
     Route::delete('/tours/{tour}', [AdminTourController::class, 'destroy'])->name('tours.destroy');
+    Route::delete('/tours/{tour}/gallery/{image}', [AdminTourController::class, 'deleteGalleryImage'])->name('tours.gallery.delete');
     Route::post('/tours/{tour}/toggle-status', [AdminTourController::class, 'toggleStatus'])->name('tours.toggle-status');
     Route::post('/tours/{tour}/toggle-featured', [AdminTourController::class, 'toggleFeatured'])->name('tours.toggle-featured');
     Route::get('/tours/{tour}/time-slots', [AdminTourController::class, 'timeSlots'])->name('tours.time-slots');
