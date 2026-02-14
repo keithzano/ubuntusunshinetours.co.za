@@ -73,7 +73,7 @@ class Cart extends Model
         if ($sessionId) {
             $cart = self::where('session_id', $sessionId)->first();
             if ($cart) {
-                if ($userId && !$cart->user_id) {
+                if ($userId && !$cart->user_id && User::where('id', $userId)->exists()) {
                     $cart->update(['user_id' => $userId]);
                 }
                 return $cart;
