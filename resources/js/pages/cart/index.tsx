@@ -63,7 +63,7 @@ function CartItemCard({
 
                         {/* Date & Participants */}
                         <div className="mt-4 flex flex-wrap items-center gap-4">
-                            <span className="flex items-center gap-1 rounded bg-gray-100 px-3 py-1 text-sm">
+                            <span className="flex items-center gap-1 rounded bg-secondary px-3 py-1 text-sm">
                                 <Calendar className="h-4 w-4" />
                                 {new Date(item.tour_date).toLocaleDateString('en-ZA', {
                                     weekday: 'short',
@@ -94,7 +94,7 @@ function CartItemCard({
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                            className="text-destructive hover:bg-destructive/10"
                             onClick={() => onRemove(item.id)}
                         >
                             <Trash2 className="mr-1 h-4 w-4" />
