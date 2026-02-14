@@ -37,7 +37,7 @@ class PageView extends Model
             'tour_id' => $tourId,
             'page' => $page,
             'session_id' => session()->getId(),
-            'user_id' => auth()->id(),
+            'user_id' => auth()->check() ? auth()->id() : null,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'referrer' => request()->header('referer'),

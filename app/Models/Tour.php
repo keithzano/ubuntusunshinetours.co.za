@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Tour extends Model
 {
@@ -171,6 +172,47 @@ class Tour extends Model
     public function getFormattedPriceAttribute(): string
     {
         return 'R ' . number_format($this->price, 2);
+    }
+
+    public function getFeaturedImageAttribute($value): ?string
+    {
+        return $this->normalizeImagePath($value);
+    }
+
+    public function getGalleryAttribute($value): array
+    {
+        $gallery = is_array($value) ? $value : json_decode($value ?? '[]', true);
+
+        if (!is_array($gallery)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(function ($path) {
+            return is_string($path) ? $this->normalizeImagePath($path) : null;
+        }, $gallery)));
+    }
+
+    private function normalizeImagePath(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $normalized = trim(str_replace('\\', '/', $path));
+
+        // Remove any full URL/domain prefix pointing at /storage.
+        $normalized = preg_replace('#^https?://[^/]+/storage/#i', '', $normalized) ?? $normalized;
+
+        // Remove leading /storage or storage prefixes.
+        $normalized = preg_replace('#^/?storage/#i', '', $normalized) ?? $normalized;
+        $normalized = ltrim($normalized, '/');
+
+        // Normalize legacy singular directory to current plural form.
+        if (Str::startsWith($normalized, 'tour/')) {
+            $normalized = 'tours/' . Str::after($normalized, 'tour/');
+        }
+
+        return $normalized !== '' ? $normalized : null;
     }
 
     public function updateRating(): void
