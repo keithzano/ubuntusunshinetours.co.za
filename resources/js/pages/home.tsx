@@ -88,13 +88,34 @@ function TourCard({ tour }: { tour: Tour }) {
 }
 
 function CategoryCard({ category }: { category: Category }) {
+    // Use category-specific placeholder images with fallback to actual tour images
+    const getCategoryImage = (category: Category) => {
+        if (category.image) return `/storage/${category.image}`;
+        if (category.fallback_image) return `/storage/${category.fallback_image}`;
+        
+        // Final fallback to static images
+        const categoryImages: { [key: string]: string } = {
+            'Safari': '/images/safari.jpg',
+            'City Tours': '/images/cape-town.jpg', 
+            'Day Trips': '/images/tour-1.jpg',
+            'Wine Tours': '/images/cape-town.jpg',
+            'Beach & Coast': '/images/cape-town.jpg',
+            'Cultural': '/images/safari.jpg',
+        };
+        return categoryImages[category.name] || '/images/tour-1.jpg';
+    };
+
     return (
         <Link href={`/tours?category=${category.slug}`}>
             <div className="group relative aspect-[3/2] overflow-hidden rounded-xl">
                 <img
-                    src={category.image ? `/storage/${category.image}` : '/images/tour-1.jpg'}
+                    src={getCategoryImage(category)}
                     alt={category.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                        // Fallback to hero image if all else fails
+                        (e.target as HTMLImageElement).src = '/images/hero.jpg';
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">
@@ -107,13 +128,34 @@ function CategoryCard({ category }: { category: Category }) {
 }
 
 function LocationCard({ location }: { location: Location }) {
+    // Use location-specific placeholder images with fallback to actual tour images
+    const getLocationImage = (location: Location) => {
+        if (location.image) return `/storage/${location.image}`;
+        if (location.fallback_image) return `/storage/${location.fallback_image}`;
+        
+        // Final fallback to static images
+        const locationImages: { [key: string]: string } = {
+            'Cape Town': '/images/cape-town.jpg',
+            'Port Elizabeth': '/images/safari.jpg',
+            'Garden Route': '/images/hero.jpg',
+            'Addo Elephant Park': '/images/safari.jpg',
+            'Stellenbosch': '/images/cape-town.jpg',
+            'Franschhoek': '/images/tour-1.jpg',
+        };
+        return locationImages[location.name] || '/images/cape-town.jpg';
+    };
+
     return (
         <Link href={`/tours?location=${location.slug}`}>
             <div className="group relative aspect-square overflow-hidden rounded-xl">
                 <img
-                    src={location.image ? `/storage/${location.image}` : '/images/cape-town.jpg'}
+                    src={getLocationImage(location)}
                     alt={location.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                        // Fallback to hero image if all else fails
+                        (e.target as HTMLImageElement).src = '/images/hero.jpg';
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">

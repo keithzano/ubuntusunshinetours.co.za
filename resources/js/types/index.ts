@@ -20,6 +20,7 @@ export interface Category {
     slug: string;
     description?: string;
     image?: string;
+    fallback_image?: string;
     icon?: string;
     is_active: boolean;
     sort_order: number;
@@ -37,6 +38,7 @@ export interface Location {
     latitude?: number;
     longitude?: number;
     image?: string;
+    fallback_image?: string;
     is_active: boolean;
     is_featured: boolean;
     tours_count?: number;

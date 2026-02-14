@@ -40,6 +40,31 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
+        // Add fallback images for categories and locations
+        $categories = $categories->map(function ($category) {
+            if (!$category->image) {
+                $sampleTour = Tour::where('category_id', $category->id)
+                    ->whereNotNull('featured_image')
+                    ->active()
+                    ->inRandomOrder()
+                    ->first();
+                $category->fallback_image = $sampleTour?->featured_image;
+            }
+            return $category;
+        });
+
+        $locations = $locations->map(function ($location) {
+            if (!$location->image) {
+                $sampleTour = Tour::where('location_id', $location->id)
+                    ->whereNotNull('featured_image')
+                    ->active()
+                    ->inRandomOrder()
+                    ->first();
+                $location->fallback_image = $sampleTour?->featured_image;
+            }
+            return $location;
+        });
+
         return Inertia::render('home', [
             'featuredTours' => $featuredTours,
             'bestsellerTours' => $bestsellerTours,
