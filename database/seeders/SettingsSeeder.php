@@ -20,6 +20,13 @@ class SettingsSeeder extends Seeder
             ['group' => 'payfast', 'key' => 'payfast_merchant_key', 'value' => '', 'type' => 'string'],
             ['group' => 'payfast', 'key' => 'payfast_passphrase', 'value' => '', 'type' => 'string'],
             ['group' => 'payfast', 'key' => 'payfast_sandbox', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'admin_notification_email', 'value' => 'info@ubuntusunshinetours.co.za', 'type' => 'string'],
+            ['group' => 'email', 'key' => 'notify_admin_registration', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'notify_admin_booking', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'notify_admin_payment', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'notify_client_welcome', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'notify_client_payment', 'value' => 'true', 'type' => 'boolean'],
+            ['group' => 'email', 'key' => 'notify_client_review_request', 'value' => 'true', 'type' => 'boolean'],
             ['group' => 'email', 'key' => 'cart_abandonment_enabled', 'value' => 'true', 'type' => 'boolean'],
             ['group' => 'email', 'key' => 'cart_abandonment_delay_hours', 'value' => '24', 'type' => 'integer'],
         ];

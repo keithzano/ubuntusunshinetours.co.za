@@ -81,7 +81,13 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'mail_from_name' => 'required|string|max:255',
             'mail_from_address' => 'required|email',
-            'booking_notification_email' => 'required|email',
+            'admin_notification_email' => 'required|email',
+            'notify_admin_registration' => 'boolean',
+            'notify_admin_booking' => 'boolean',
+            'notify_admin_payment' => 'boolean',
+            'notify_client_welcome' => 'boolean',
+            'notify_client_payment' => 'boolean',
+            'notify_client_review_request' => 'boolean',
             'cart_abandonment_enabled' => 'boolean',
             'cart_abandonment_delay_hours' => 'integer|min:1|max:72',
         ]);

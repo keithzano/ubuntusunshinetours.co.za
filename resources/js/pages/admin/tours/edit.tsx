@@ -45,13 +45,14 @@ export default function AdminToursEdit({ tour, categories, locations }: EditTour
         max_group_size: tour.max_group_size?.toString() || '',
         duration: tour.duration?.toString() || '',
         duration_minutes: tour.duration_minutes?.toString() || '',
-        highlights: tour.highlights || [''],
-        includes: tour.includes || [''],
-        excludes: tour.excludes || [''],
-        what_to_bring: tour.what_to_bring || [''],
-        meeting_point: tour.meeting_point || { address: '', instructions: '' },
+        highlights: tour.highlights?.join('\n') || '',
+        includes: tour.includes?.join('\n') || '',
+        excludes: tour.excludes?.join('\n') || '',
+        what_to_bring: tour.what_to_bring?.join('\n') || '',
+        meeting_point: tour.meeting_point?.address || '',
         cancellation_policy: tour.cancellation_policy || '',
-        languages: tour.languages || ['English'],
+        languages: tour.languages?.join(', ') || '',
+        accessibility: tour.accessibility?.join(', ') || '',
         min_participants: tour.min_participants?.toString() || '1',
         max_participants: tour.max_participants?.toString() || '',
         booking_cutoff_hours: tour.booking_cutoff_hours?.toString() || '24',
@@ -93,15 +94,40 @@ export default function AdminToursEdit({ tour, categories, locations }: EditTour
                         formData.append(`pricing_tiers[${index}][${tierKey}]`, String(tier[tierKey as keyof TourPricingTier]));
                     });
                 });
-            } else if (Array.isArray(data[key as keyof typeof data])) {
-                // Handle arrays
-                (data[key as keyof typeof data] as string[]).forEach((item: string, index: number) => {
+            } else if (['highlights', 'includes', 'excludes', 'what_to_bring'].includes(key)) {
+                // Convert textarea strings to arrays
+                const stringValue = data[key as keyof typeof data] as string;
+                const arrayValue = stringValue.split('\n').filter(item => item.trim() !== '');
+                arrayValue.forEach((item: string, index: number) => {
+                    formData.append(`${key}[${index}]`, item.trim());
+                });
+            } else if (['languages', 'accessibility'].includes(key)) {
+                // Convert comma-separated strings to arrays
+                const stringValue = data[key as keyof typeof data] as string;
+                const arrayValue = stringValue.split(',').map(item => item.trim()).filter(item => item !== '');
+                arrayValue.forEach((item: string, index: number) => {
                     formData.append(`${key}[${index}]`, item);
                 });
-            } else if (typeof data[key as keyof typeof data] === 'object' && data[key as keyof typeof data] !== null) {
-                // Handle objects
-                Object.keys(data[key as keyof typeof data] as any).forEach(objKey => {
-                    formData.append(`${key}[${objKey}]`, String((data[key as keyof typeof data] as any)[objKey]));
+            } else if (key === 'meeting_point') {
+                // Handle meeting point as object
+                const meetingPoint = {
+                    address: data.meeting_point as string,
+                    instructions: '',
+                };
+                Object.keys(meetingPoint).forEach(objKey => {
+                    formData.append(`meeting_point[${objKey}]`, String((meetingPoint as any)[objKey]));
+                });
+            } else if (Array.isArray(data[key as keyof typeof data])) {
+                // Handle arrays (only pricing_tiers should reach here)
+                const arrayData = data[key as keyof typeof data] as any[];
+                arrayData.forEach((item: any, index: number) => {
+                    if (typeof item === 'object') {
+                        Object.keys(item).forEach(objKey => {
+                            formData.append(`${key}[${index}][${objKey}]`, String(item[objKey]));
+                        });
+                    } else {
+                        formData.append(`${key}[${index}]`, String(item));
+                    }
                 });
             } else {
                 // Handle simple values
@@ -113,22 +139,6 @@ export default function AdminToursEdit({ tour, categories, locations }: EditTour
         formData.append('_method', 'PUT');
         
         router.post(`/admin/tours/${tour.id}`, formData);
-    };
-
-    const addArrayItem = (field: 'highlights' | 'includes' | 'excludes' | 'what_to_bring') => {
-        setData(field, [...data[field], '']);
-    };
-
-    const removeArrayItem = (field: 'highlights' | 'includes' | 'excludes' | 'what_to_bring', index: number) => {
-        const newArray = [...data[field]];
-        newArray.splice(index, 1);
-        setData(field, newArray);
-    };
-
-    const updateArrayItem = (field: 'highlights' | 'includes' | 'excludes' | 'what_to_bring', index: number, value: string) => {
-        const newArray = [...data[field]];
-        newArray[index] = value;
-        setData(field, newArray);
     };
 
     const addPricingTier = () => {
@@ -360,6 +370,114 @@ export default function AdminToursEdit({ tour, categories, locations }: EditTour
                                     Add Tier
                                 </Button>
                             </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Highlights & Details */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Highlights & Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <Label htmlFor="highlights">Highlights</Label>
+                            <Textarea
+                                id="highlights"
+                                value={data.highlights || ''}
+                                onChange={(e) => setData('highlights', e.target.value)}
+                                rows={3}
+                                placeholder="Enter key highlights (one per line)"
+                            />
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Enter each highlight on a new line
+                            </p>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <Label htmlFor="includes">What's Included</Label>
+                                <Textarea
+                                    id="includes"
+                                    value={data.includes || ''}
+                                    onChange={(e) => setData('includes', e.target.value)}
+                                    rows={4}
+                                    placeholder="Enter included items (one per line)"
+                                />
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Enter each included item on a new line
+                                </p>
+                            </div>
+                            <div>
+                                <Label htmlFor="excludes">What's Excluded</Label>
+                                <Textarea
+                                    id="excludes"
+                                    value={data.excludes || ''}
+                                    onChange={(e) => setData('excludes', e.target.value)}
+                                    rows={4}
+                                    placeholder="Enter excluded items (one per line)"
+                                />
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Enter each excluded item on a new line
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="what_to_bring">What to Bring</Label>
+                            <Textarea
+                                id="what_to_bring"
+                                value={data.what_to_bring || ''}
+                                onChange={(e) => setData('what_to_bring', e.target.value)}
+                                rows={3}
+                                placeholder="Enter items guests should bring (one per line)"
+                            />
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Enter each item on a new line
+                            </p>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="meeting_point">Meeting Point</Label>
+                            <Textarea
+                                id="meeting_point"
+                                value={data.meeting_point || ''}
+                                onChange={(e) => setData('meeting_point', e.target.value)}
+                                rows={2}
+                                placeholder="Enter the meeting point details"
+                            />
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <Label htmlFor="languages">Languages</Label>
+                                <Input
+                                    id="languages"
+                                    value={data.languages || ''}
+                                    onChange={(e) => setData('languages', e.target.value)}
+                                    placeholder="e.g., English, Afrikaans, Xhosa"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="accessibility">Accessibility</Label>
+                                <Input
+                                    id="accessibility"
+                                    value={data.accessibility || ''}
+                                    onChange={(e) => setData('accessibility', e.target.value)}
+                                    placeholder="e.g., Wheelchair accessible, Moderate walking required"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="cancellation_policy">Cancellation Policy</Label>
+                            <Textarea
+                                id="cancellation_policy"
+                                value={data.cancellation_policy || ''}
+                                onChange={(e) => setData('cancellation_policy', e.target.value)}
+                                rows={3}
+                                placeholder="Enter cancellation policy details"
+                            />
                         </div>
                     </CardContent>
                 </Card>

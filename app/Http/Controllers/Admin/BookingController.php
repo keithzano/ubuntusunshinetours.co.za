@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Mail\BookingConfirmationMail;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
@@ -101,9 +102,9 @@ class BookingController extends Controller
 
         $booking->update(['payment_status' => $request->payment_status]);
 
-        // Send confirmation email when payment is marked as paid and booking is confirmed
-        if ($request->payment_status === 'paid' && $booking->status === 'confirmed') {
-            Mail::to($booking->customer_email)->send(new BookingConfirmationMail($booking));
+        // Send payment confirmation to client when payment is marked as paid
+        if ($request->payment_status === 'paid') {
+            NotificationService::sendPaymentConfirmation($booking);
         }
 
         return back()->with('success', 'Payment status updated');

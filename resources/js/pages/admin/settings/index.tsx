@@ -257,7 +257,13 @@ function EmailSettings({ settings }: { settings: Settings['email'] }) {
     const { data, setData, post, processing } = useForm({
         mail_from_name: settings.mail_from_name || 'Ubuntu Sunshine Tours',
         mail_from_address: settings.mail_from_address || '',
-        booking_notification_email: settings.booking_notification_email || '',
+        admin_notification_email: settings.admin_notification_email || '',
+        notify_admin_registration: settings.notify_admin_registration ?? true,
+        notify_admin_booking: settings.notify_admin_booking ?? true,
+        notify_admin_payment: settings.notify_admin_payment ?? true,
+        notify_client_welcome: settings.notify_client_welcome ?? true,
+        notify_client_payment: settings.notify_client_payment ?? true,
+        notify_client_review_request: settings.notify_client_review_request ?? true,
         cart_abandonment_enabled: settings.cart_abandonment_enabled ?? true,
         cart_abandonment_delay_hours: settings.cart_abandonment_delay_hours || 24,
     });
@@ -272,43 +278,151 @@ function EmailSettings({ settings }: { settings: Settings['email'] }) {
             <Card>
                 <CardHeader>
                     <CardTitle>Email Settings</CardTitle>
-                    <CardDescription>Configure email notifications</CardDescription>
+                    <CardDescription>Configure email notifications for admins and clients</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <Label htmlFor="mail_from_name">From Name</Label>
-                            <Input
-                                id="mail_from_name"
-                                value={data.mail_from_name}
-                                onChange={(e) => setData('mail_from_name', e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="mail_from_address">From Email</Label>
-                            <Input
-                                id="mail_from_address"
-                                type="email"
-                                value={data.mail_from_address}
-                                onChange={(e) => setData('mail_from_address', e.target.value)}
-                            />
-                        </div>
-                    </div>
-
+                <CardContent className="space-y-6">
+                    {/* Sender Settings */}
                     <div>
-                        <Label htmlFor="booking_notification_email">Booking Notification Email</Label>
-                        <Input
-                            id="booking_notification_email"
-                            type="email"
-                            value={data.booking_notification_email}
-                            onChange={(e) => setData('booking_notification_email', e.target.value)}
-                        />
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Receive notifications when new bookings are made
-                        </p>
+                        <h3 className="mb-3 text-lg font-semibold">Sender Settings</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <Label htmlFor="mail_from_name">From Name</Label>
+                                <Input
+                                    id="mail_from_name"
+                                    value={data.mail_from_name}
+                                    onChange={(e) => setData('mail_from_name', e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="mail_from_address">From Email</Label>
+                                <Input
+                                    id="mail_from_address"
+                                    type="email"
+                                    value={data.mail_from_address}
+                                    onChange={(e) => setData('mail_from_address', e.target.value)}
+                                />
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Admin Notification Settings */}
                     <div className="space-y-4 rounded-lg border p-4">
+                        <h3 className="text-lg font-semibold">Admin Notifications</h3>
+                        <div>
+                            <Label htmlFor="admin_notification_email">Admin Notification Email</Label>
+                            <Input
+                                id="admin_notification_email"
+                                type="email"
+                                value={data.admin_notification_email}
+                                onChange={(e) => setData('admin_notification_email', e.target.value)}
+                            />
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                All admin notifications will be sent to this email address
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_admin_registration}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_admin_registration', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">New Client Registration</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive an email when a new client creates an account
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_admin_booking}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_admin_booking', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">New Booking</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive an email when a new booking is made
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_admin_payment}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_admin_payment', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">Payment Received</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive an email when a payment is processed
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Client Notification Settings */}
+                    <div className="space-y-4 rounded-lg border p-4">
+                        <h3 className="text-lg font-semibold">Client Notifications</h3>
+                        <div className="space-y-3">
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_client_welcome}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_client_welcome', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">Welcome Email</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Send a welcome email when a new client registers
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_client_payment}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_client_payment', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">Payment Confirmation</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Send a payment confirmation email with invoice attached
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label className="flex cursor-pointer items-center gap-3">
+                                <Checkbox
+                                    checked={data.notify_client_review_request}
+                                    onCheckedChange={(checked) =>
+                                        setData('notify_client_review_request', checked as boolean)
+                                    }
+                                />
+                                <div>
+                                    <p className="font-medium">Review Request</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Send a review request email after a tour is completed
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Cart Abandonment */}
+                    <div className="space-y-4 rounded-lg border p-4">
+                        <h3 className="text-lg font-semibold">Cart Abandonment</h3>
                         <label className="flex cursor-pointer items-center gap-3">
                             <Checkbox
                                 checked={data.cart_abandonment_enabled}

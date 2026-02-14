@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use App\Services\NotificationService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -103,6 +104,10 @@ class CheckoutController extends Controller
                 ]);
                 $userId = $user->id;
                 auth()->login($user);
+
+                // Send welcome email and notify admin
+                NotificationService::sendWelcomeEmail($user);
+                NotificationService::notifyAdminNewRegistration($user);
             }
 
             $bookings = [];
@@ -139,6 +144,11 @@ class CheckoutController extends Controller
                 }
 
                 $bookings[] = $booking;
+            }
+
+            // Notify admin about each new booking
+            foreach ($bookings as $booking) {
+                NotificationService::notifyAdminNewBooking($booking);
             }
 
             // Calculate total for payment
